@@ -6,5 +6,8 @@ Author: Timon Heide
 Maintainer: Timon Heide <timon.heide@fht.org>
 Description: A personal R package that contains various functions used across projects. 
 License: file LICENSE
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
 Encoding: UTF-8
 LazyData: true
