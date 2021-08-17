@@ -1,6 +1,7 @@
 # THmisc 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/T-Heide/THmisc/workflows/R-CMD-check/badge.svg)](https://github.com/T-Heide/THmisc/actions)
+[![Codecov test coverage](https://codecov.io/gh/T-Heide/THmisc/branch/main/graph/badge.svg?token=0NTPROVFFS)](https://codecov.io/gh/T-Heide/THmisc)
 <!-- badges: end -->
 
 A Package Containing Personal Methods
