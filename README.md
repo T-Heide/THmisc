@@ -13,6 +13,11 @@ A Package Containing Personal Methods
 # install.packages("devtools")
 devtools::install_github("T-Heide/THmisc")
 ```
+-----
+
+#### Help and support
+
+[![](https://img.shields.io/badge/GitHub%20Pages-https://t--heide.github.io/THmisc/-informational)](https://t-heide.github.io/THmisc/)
 
 -----
 
