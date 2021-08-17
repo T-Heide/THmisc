@@ -1,0 +1,10 @@
+Package: THmisc
+Type: Package
+Title: A Package Containing Personal Methods
+Version: 0.1.0
+Author: Timon Heide
+Maintainer: Timon Heide <timon.heide@fht.org>
+Description: A personal R package that contains various functions used across projects. 
+License: file LICENSE
+Encoding: UTF-8
+LazyData: true
