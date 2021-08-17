@@ -1,5 +1,6 @@
 # THmisc 
 <!-- badges: start -->
+[![R-CMD-check](https://github.com/T-Heide/THmisc/workflows/R-CMD-check/badge.svg)](https://github.com/T-Heide/THmisc/actions)
 <!-- badges: end -->
 
 A Package Containing Personal Methods
