@@ -1,0 +1,77 @@
+##fileformat=VCFv4.0
+##FILTER=<ID=PASS,Description="All filters passed">
+##fileDate=2021-06-16
+##source=Platypus_Version_0.8.1.1
+##platypusOptions={'assemblyRegionSize': 1500, 'trimReadFlank': 0, 'assembleBadReads': 1, 'bamFiles': ['BL_PBMC_S3.recal.bam', '2104297-2099605-T.recal.bam'], 'minVarDist': 9, 'trimSoftClipped': 1, 'minReads': 2, 'qualBinSize': 1, 'refFile': 'Homo_sapiens_assembly38.fasta', 'maxHaplotypes': 50, 'filterVarsByCoverage': 1, 'maxSize': 1500, 'originalMaxHaplotypes': 50, 'skipDifficultWindows': 0, 'parseNCBI': 0, 'skipRegionsFile': None, 'noCycles': 0, 'trimAdapter': 1, 'minPosterior': 0, 'assembleAll': 1, 'trimOverlapping': 1, 'filterDuplicates': 1, 'abThreshold': 0.001, 'minFlank': 10, 'bufferSize': 100000, 'fileCaching': 0, 'useEMLikelihoods': 0, 'coverageSamplingLevel': 30, 'calculateFlankScore': 0, 'logFileName': '038_CM_chr10_124121503-133690466.log', 'nCPU': 2, 'filterReadsWithUnmappedMates': 1, 'qdThreshold': 10, 'maxVariants': 100, 'scThreshold': 0.95, 'filterReadsWithDistantMates': 1, 'maxReads': 100000000.0, 'badReadsWindow': 11, 'genIndels': 1, 'largeWindows': 0, 'minMapQual': 20, 'maxVarDist': 15, 'maxGOF': 30, 'rlen': 150, 'minGoodQualBases': 20, 'refCallBlockSize': 1000, 'countOnlyExactIndelMatches': 0, 'longHaps': 0, 'HLATyping': 0, 'filterReadPairsWithSmallInserts': 0, 'minBaseQual': 20, 'getVariantsFromBAMs': 0, 'genSNPs': 1, 'assemble': 0, 'assemblerKmerSize': 15, 'minVarFreq': 0.05, 'alignScoreFile': '', 'verbosity': 2, 'sourceFile': ['Mutect2_2104297-2099605-T_vs_BL_PBMC_S3_local_filtered.vcf.gz'], 'compressReads': 0, 'rmsmqThreshold': 40, 'filteredReadsFrac': 0.7, 'outputRefCalls': 0, 'badReadsThreshold': 15, 'hapScoreThreshold': 4, 'regions': ['chr10_124121503-133690466.bed.txt'], 'sbThreshold': 0.001, 'output': 'chr10_124121503-133690466_038_CM.vcf', 'assembleBrokenPairs': 0, 'mergeClusteredVariants': 1, 'maxGenotypes': 1275, 'nInd': 2}
+##INFO=<ID=FR,Number=.,Type=Float,Description="Estimated population frequency of variant">
+##INFO=<ID=MMLQ,Number=1,Type=Float,Description="Median minimum base quality for bases around variant">
+##INFO=<ID=TCR,Number=1,Type=Integer,Description="Total reverse strand coverage at this locus">
+##INFO=<ID=HP,Number=1,Type=Integer,Description="Homopolymer run length around variant locus">
+##INFO=<ID=WE,Number=1,Type=Integer,Description="End position of calling window">
+##INFO=<ID=Source,Number=.,Type=String,Description="Was this variant suggested by Playtypus, Assembler, or from a VCF?">
+##INFO=<ID=FS,Number=.,Type=Float,Description="Fisher's exact test for strand bias (Phred scale)">
+##INFO=<ID=WS,Number=1,Type=Integer,Description="Starting position of calling window">
+##INFO=<ID=PP,Number=.,Type=Float,Description="Posterior probability (phred scaled) that this variant segregates">
+##INFO=<ID=TR,Number=.,Type=Integer,Description="Total number of reads containing this variant">
+##INFO=<ID=NF,Number=.,Type=Integer,Description="Total number of forward reads containing this variant">
+##INFO=<ID=TCF,Number=1,Type=Integer,Description="Total forward strand coverage at this locus">
+##INFO=<ID=NR,Number=.,Type=Integer,Description="Total number of reverse reads containing this variant">
+##INFO=<ID=TC,Number=1,Type=Integer,Description="Total coverage at this locus">
+##INFO=<ID=END,Number=.,Type=Integer,Description="End position of reference call block">
+##INFO=<ID=MGOF,Number=.,Type=Integer,Description="Worst goodness-of-fit value reported across all samples">
+##INFO=<ID=SbPval,Number=.,Type=Float,Description="Binomial P-value for strand bias test">
+##INFO=<ID=START,Number=.,Type=Integer,Description="Start position of reference call block">
+##INFO=<ID=ReadPosRankSum,Number=.,Type=Float,Description="Mann-Whitney Rank sum test for difference between in positions of variants in reads from ref and alt">
+##INFO=<ID=MQ,Number=.,Type=Float,Description="Root mean square of mapping qualities of reads at the variant position">
+##INFO=<ID=QD,Number=1,Type=Float,Description="Variant-quality/read-depth for this variant">
+##INFO=<ID=SC,Number=1,Type=String,Description="Genomic sequence 10 bases either side of variant position">
+##INFO=<ID=BRF,Number=1,Type=Float,Description="Fraction of reads around this variant that failed filters">
+##INFO=<ID=HapScore,Number=.,Type=Integer,Description="Haplotype score measuring the number of haplotypes the variant is segregating into in a window">
+##INFO=<ID=Size,Number=.,Type=Integer,Description="Size of reference call block">
+##FILTER=<ID=GOF,Description="Variant fails goodness-of-fit test.">
+##FILTER=<ID=hp10,Description="Flanking sequence contains homopolymer of length 10 or greater">
+##FILTER=<ID=REFCALL,Description="This line represents a homozygous reference call">
+##FILTER=<ID=badReads,Description="Variant supported only by reads with low quality bases close to variant position, and not present on both strands.">
+##FILTER=<ID=alleleBias,Description="Variant frequency is lower than expected for het">
+##FILTER=<ID=Q20,Description="Variant quality is below 20.">
+##FILTER=<ID=HapScore,Description="Too many haplotypes are supported by the data in this region.">
+##FILTER=<ID=MQ,Description="Root-mean-square mapping quality across calling region is low.">
+##FILTER=<ID=QD,Description="Variants fail quality/depth filter.">
+##FILTER=<ID=SC,Description="Variants fail sequence-context filter. Surrounding sequence is low-complexity">
+##FILTER=<ID=QualDepth,Description="Variant quality/Read depth ratio is low.">
+##FILTER=<ID=strandBias,Description="Variant fails strand-bias filter">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Unphased genotypes">
+##FORMAT=<ID=GQ,Number=.,Type=Integer,Description="Genotype quality as phred score">
+##FORMAT=<ID=GOF,Number=.,Type=Float,Description="Goodness of fit value">
+##FORMAT=<ID=NR,Number=.,Type=Integer,Description="Number of reads covering variant location in this sample">
+##FORMAT=<ID=GL,Number=.,Type=Float,Description="Genotype log10-likelihoods for AA,AB and BB genotypes, where A = ref and B = variant. Only applicable for bi-allelic sites">
+##FORMAT=<ID=NV,Number=.,Type=Integer,Description="Number of reads containing variant in this sample">
+##contig=<ID=chr1>
+##contig=<ID=chr2>
+##contig=<ID=chr3>
+##contig=<ID=chr4>
+##contig=<ID=chr5>
+##contig=<ID=chr6>
+##contig=<ID=chr7>
+##contig=<ID=chr8>
+##contig=<ID=chr9>
+##contig=<ID=chr10>
+##contig=<ID=chr11>
+##contig=<ID=chr12>
+##contig=<ID=chr13>
+##contig=<ID=chr14>
+##contig=<ID=chr15>
+##contig=<ID=chr16>
+##contig=<ID=chr17>
+##contig=<ID=chr18>
+##contig=<ID=chr19>
+##contig=<ID=chr20>
+##contig=<ID=chr21>
+##contig=<ID=chr22>
+##contig=<ID=chrX>
+##contig=<ID=chrY>
+##bcftools_isecVersion=1.9+htslib-1.9
+##bcftools_isecCommand=isec --targets-file Twist_Exome_Target_hg38.bed rawcalls.vcf.gz; Date=Wed Jun 16 20:05:07 2021
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	2104297-2099605-T-1	BL_PBMC_S3
+chr1	1	.	C	T	342	PASS	BRF=0.55;FR=0.25;HP=2;HapScore=1;MGOF=10;MMLQ=33;MQ=51.89;NF=12;NR=5;PP=342;QD=22.163;SC=TGCAGCGCGGCCACGCGCTCC;SbPval=0.63;Source=File;TC=295;TCF=158;TCR=137;TR=17;WE=11925600;WS=11925582	GT:GL:GOF:GQ:NR:NV	0/1:-38.68,0,-31.88:10:99:29:17	0/0:0,-46.96,-300:4:99:266:0
+chr1	2	.	T	C	2129	PASS	BRF=0.4;FR=0.25;HP=2;HapScore=1;MGOF=6;MMLQ=38;MQ=53.38;NF=54;NR=10;PP=2129;QD=33.8089;SC=CGCCAGAAAGTCCTCTTGCAG;SbPval=0.78;Source=File;TC=394;TCF=233;TCR=161;TR=64;WE=11925674;WS=11925656	GT:GL:GOF:GQ:NR:NV	1/0:-217.33,0,-35.13:6:99:81:64	0/0:0,-53.85,-300:2:99:313:0
