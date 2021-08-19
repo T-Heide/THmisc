@@ -4,3 +4,5 @@
 .Ruserdata
 THmisc.Rproj
 docs
+.DS_Store
+notR
