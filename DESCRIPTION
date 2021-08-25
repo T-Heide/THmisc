@@ -8,14 +8,23 @@ Description: A personal R package that contains various functions used across pr
 License: file LICENSE
 Suggests: 
     covr,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    BSgenome.Hsapiens.UCSC.hg38,
+    BSgenome.Hsapiens.UCSC.hg19,
+    BSgenome.Hsapiens.UCSC.hg18,
+    TxDb.Hsapiens.UCSC.hg38.knownGene
 Imports:
     dplyr,
     VariantAnnotation,
     crayon,
     checkmate,
     GenomicRanges,
-    SummarizedExperiment
+    SummarizedExperiment,
+    BSgenome,
+    org.Hs.eg.db,
+    pbapply,
+    magrittr,
+    AnnotationDbi
 Config/testthat/edition: 3
 Encoding: UTF-8
 LazyData: true

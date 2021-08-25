@@ -134,21 +134,103 @@ print_vcf_content = function(d) {
 }
 
 
-#' Wrapper function to load arbitray VCF files.
+#' A internal function to guess the reference genome of a 'CollapsedVCF' object.
+#'
+#' @param d A 'CollapsedVCF' object.
+#' @param verbose Verbosity flag (Default: TRUE)
+#'
+#' @return Name of the matching reference genome
+guess_reference_genome = function(d, verbose=TRUE) {
+  checkmate::assertClass(d, "CollapsedVCF")
+
+  # genomes to test
+  genomes =
+    list(
+      "BSgenome.Hsapiens.UCSC.hg38",
+      "BSgenome.Hsapiens.UCSC.hg19",
+      "BSgenome.Hsapiens.UCSC.hg18"
+    )
+
+  if (verbose) {
+    cat("  Guessing reference of a vcf file:\n")
+  }
+
+  # test if the genomes are available
+  avail =
+    suppressWarnings(
+      sapply(
+        genomes,
+        require,
+        character.only = TRUE,
+        quietly = TRUE
+      )
+    )
+
+  genomes_avail = lapply(genomes[avail], function(x) get(x))
+
+  if (length(genomes_avail) == 0) {
+    if (verbose) {
+      cat("   => ", crayon::red("No genomes available."), "\n", sep="")
+      cat("   => Please install the 'BSgenome.Hsapiens' of the parsed vcf file.\n")
+    }
+    return(NA)
+  }
+
+  if (verbose) {
+    n_a = length(genomes_avail)
+    n = length(genomes_avail)
+    cat("   => Testing ", n_a, "/", n , " available options.\n", sep="")
+  }
+
+  # check which genomes match:
+  rn = SummarizedExperiment::rowRanges(d)
+
+  genomes_matches =
+    sapply(genomes_avail, \(g) {
+      suppressMessages(suppressWarnings(tryCatch(
+        all(as.character(BSgenome::getSeq(g, rn)) == rn$REF),
+        error=function(x) return(FALSE)
+      )))
+    })
+
+  n_m = sum(genomes_matches)
+  ref = utils::head(unlist(genomes[avail][genomes_matches]), 1)
+
+  if (verbose) {
+    cat("   => Found ", n_m, "/", n_a , " perfectly matching.\n", sep="")
+    if (n_m >= 1) {
+      cat("   => Reference is ", "'", crayon::green(ref), "'.\n", sep="")
+    } else {
+      cat(crayon::red("   => Error! Couldn't find reference.\n"), sep="")
+    }
+  }
+
+  if (length(ref) != 1) {
+    return(NA)
+  }
+
+  invisible(ref)
+}
+
+
+#' Wrapper function to load arbitrary VCF files.
 #'
 #' @param f File name
-#' @param verbose Verbosity flag
+#' @param ... Other optional arguments.
+#' @param verbose Verbosity flag (Default: TRUE)
+#' @param annot Flag indicating if variant annotations should be added (Default: TRUE)
 #'
 #' @return A 'CollapsedVCF' object.
 #' @export
 #'
 #' @examples load_vcf_file(system.file("extdata", "platypus.vcf.bgz", package = "THmisc"))
-load_vcf_file = function(f, verbose=TRUE) {
+load_vcf_file = function(f, ..., verbose=TRUE, annot=TRUE) {
 
   # check arguments
   cl = checkmate::makeAssertCollection()
   checkmate::assertFileExists(f, access="r", add=cl)
   checkmate::assertFlag(verbose, add=cl)
+  checkmate::assertFlag(annot, add=cl)
   checkmate::reportAssertions(cl)
 
   # identify type of vcf file
@@ -171,8 +253,12 @@ load_vcf_file = function(f, verbose=TRUE) {
 
   # load file
   if (vcf_type == "platypus") {
-    if (verbose) cat("   => Type is ", crayon::green("'Platpyus'"), ".\n", sep="")
-    data = load_platypus_vcf(f)
+    if (verbose) {
+      cat("   => Type is ", crayon::green("'Platpyus'"), ".\n", sep="")
+      data = suppressMessages(load_platypus_vcf(f))
+    } else {
+      data = load_platypus_vcf(f)
+    }
   } else if (vcf_type == "mutect2") {
     if (verbose) cat("   => Type is ", crayon::red("Mutect2"), ".\n", sep="")
     cat("\n", crayon::bold(div_l))
@@ -188,10 +274,127 @@ load_vcf_file = function(f, verbose=TRUE) {
     print_vcf_content(data)
   }
 
+  # insert annotations
+  if (annot) {
+    data = add_annot_wrapper(data, verbose=verbose)
+  }
+
   # print terminal line
   if (verbose)
-    cat("\n", crayon::bold(div_l))
+    cat("\n", crayon::bold(div_l), "\n")
 
   return(data)
 }
 
+
+add_annot_wrapper = function(data, verbose=TRUE) {
+
+  conseq_order = c("frameshift","nonsense","nonsynonymous","synonymous")
+
+  if (FALSE) {
+
+    ##=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    ##  VCF contains VEP annotations    =
+    ##=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+    stop()
+
+  } else {
+
+    ##=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    ##  VCF Does not contain annotation =
+    ##=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+    # guess reference genome and check that matching TxDb is avail:
+    if (verbose) cat("\n")
+    rg = guess_reference_genome(data, verbose = verbose)
+    if (!is.na(rg)) {
+      txdb_n = paste0(gsub("BSgenome[.]", "TxDb.", rg), ".knownGene")
+      txdb_a = suppressWarnings(require(txdb_n, character.only = TRUE, quietly =
+                                          TRUE))
+      if (!txdb_a) {
+        cat(crayon::red("Missing TxDb package '", "'", sep = ""))
+        cat("Please install and try again. Try BiocManager::install('", txdb_n, "')'.\n", sep = "")
+        stop("Missing package.")
+      }
+
+      # generate annotation object:
+      annot = # get annotation
+        suppressWarnings(VariantAnnotation::predictCoding(
+          query = data,
+          subject = get(txdb_n),
+          seqSource = get(rg),
+        ))
+
+      # print everything missed in the consequence lists
+      if (!all(annot$CONSEQUENCE %in% conseq_order)) {
+        m_conseq = unique(annot$CONSEQUENCE[!annot$CONSEQUENCE %in% conseq_order])
+        stop("Unknown CONSEQUENCES: ", paste0(m_conseq, collapse = ", "))
+      }
+
+      gene_ids_to_name =
+        suppressMessages(
+          AnnotationDbi::select(
+            org.Hs.eg.db::org.Hs.eg.db,
+            keys =  unique(annot$GENEID),
+            columns = c("ENTREZID", "SYMBOL"),
+            keytype = "ENTREZID"
+          )
+        ) %>% (\(x) magrittr::set_names(x$SYMBOL, x$ENTREZID))
+
+
+      .get_annot_string = function(mid) {
+        annot_c = annot[names(annot) == mid, ]
+
+        if (NROW(annot_c) == 0) return(NA)
+
+        if (NROW(annot_c) > 1) {
+          if (all(annot_c$CONSEQUENCE == "synonymous")) {
+            annot_c = annot_c[1, ]
+          } else {
+            # keep highest impact
+            prior = match(annot_c$CONSEQUENCE, conseq_order)
+            annot_c = annot_c[prior == min(prior), ]
+          }
+        }
+
+        if (NROW(annot_c) != 1) {
+          warning("Keeping random annotation, need list of cannoical transcripts!\n")
+          annot_c = annot_c[1, ]
+        }
+
+        stopifnot(length(unique(annot_c$REF)) == 1)
+        stopifnot(length(unique(unlist(annot_c$ALT))) == 1)
+
+        sprintf(
+          "%s p.%s%d%s (%s:%i-%i_%s/%s)",
+          gene_ids_to_name[annot_c$GENEID],
+          annot_c$REFAA,
+          sapply(annot_c$PROTEINLOC, "[[", 1),
+          annot_c$VARAA,
+          GenomicRanges::seqnames(annot_c),
+          GenomicRanges::start(annot_c),
+          GenomicRanges::end(annot_c),
+          annot_c$REF,
+          unlist(annot_c$ALT)
+        )
+
+      }
+
+      if (verbose) {
+        cat("\n")
+        cat("  Generating annotations:\n  ")
+        annot_strings = pbapply::pbsapply(rownames(data), .get_annot_string)
+      }  else {
+        annot_strings = sapply(rownames(data), .get_annot_string)
+      }
+      SummarizedExperiment::rowRanges(data)$ANNOTATION = annot_strings[rownames(data)]
+
+    } else {
+      stop("Couldn't identify the BSgenome object to use for annotation.\n")
+    }
+
+  }
+
+  return(data)
+}

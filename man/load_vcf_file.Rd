@@ -2,20 +2,24 @@
 % Please edit documentation in R/vcf_files.R
 \name{load_vcf_file}
 \alias{load_vcf_file}
-\title{Wrapper function to load arbitray VCF files.}
+\title{Wrapper function to load arbitrary VCF files.}
 \usage{
-load_vcf_file(f, verbose = TRUE)
+load_vcf_file(f, ..., verbose = TRUE, annot = TRUE)
 }
 \arguments{
 \item{f}{File name}
 
-\item{verbose}{Verbosity flag}
+\item{...}{Other optional arguments.}
+
+\item{verbose}{Verbosity flag (Default: TRUE)}
+
+\item{annot}{Flag indicating if variant annotations should be added (Default: TRUE)}
 }
 \value{
 A 'CollapsedVCF' object.
 }
 \description{
-Wrapper function to load arbitray VCF files.
+Wrapper function to load arbitrary VCF files.
 }
 \examples{
 load_vcf_file(system.file("extdata", "platypus.vcf.bgz", package = "THmisc"))
