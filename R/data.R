@@ -1,0 +1,14 @@
+#' List of genes for various analysis
+#'
+#' A various list of genes.
+#'
+#' @format A list with 6 elements
+#' \describe{
+#'   \item{all_genes}{All genes (N=20091).}
+#'   \item{coad_driver_genes_tcga_2012}{List of COAD driver genes from TCGA 2012 (N=37).}
+#'   \item{CRC_drivers_Cross2018_Tier1}{List of COAD driver genes from Cross et al. 2018 (N=15).}
+#'   \item{driver_genes_martincorena_2017}{List of PanCancer driver genes from Martincorena et al. 2017 (N=370).}
+#'   \item{driver_genes_tarabichi_2018}{List of PanCancer driver genes from Tarabichi et al. 2018 (N=193).}
+#'   \item{IntOGen-DriverGenes_COREAD}{List of COAD driver genes from IntOGen (https://www.intogen.org) (N=72).}
+#' }
+"gene_lists"
