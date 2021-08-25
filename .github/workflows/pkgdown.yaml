@@ -23,7 +23,7 @@ jobs:
       - name: Query dependencies
         run: |
           install.packages('remotes')
-          remotes::install_bioc(c("VariantAnnotation", "GenomicRanges", "SummarizedExperiment"))
+          remotes::install_bioc(c("VariantAnnotation", "GenomicRanges", "SummarizedExperiment","TxDb.Hsapiens.UCSC.hg38.knownGene","BSgenome.Hsapiens.UCSC.hg38","org.Hs.eg.db"))
           saveRDS(remotes::dev_package_deps(dependencies = TRUE), ".github/depends.Rds", version = 2)
           writeLines(sprintf("R-%i.%i", getRversion()$major, getRversion()$minor), ".github/R-version")
         shell: Rscript {0}
