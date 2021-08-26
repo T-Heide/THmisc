@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Wrapper function to load arbitray VCF files. — load_vcf_file • THmisc</title>
+<title>Wrapper function to load arbitrary VCF files. — load_vcf_file • THmisc</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Wrapper function to load arbitray VCF files. — load_vcf_file" />
-<meta property="og:description" content="Wrapper function to load arbitray VCF files." />
+<meta property="og:title" content="Wrapper function to load arbitrary VCF files. — load_vcf_file" />
+<meta property="og:description" content="Wrapper function to load arbitrary VCF files." />
 
 
 
@@ -103,16 +103,16 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Wrapper function to load arbitray VCF files.</h1>
+    <h1>Wrapper function to load arbitrary VCF files.</h1>
     
     <div class="hidden name"><code>load_vcf_file.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Wrapper function to load arbitray VCF files.</p>
+    <p>Wrapper function to load arbitrary VCF files.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>load_vcf_file</span><span class='op'>(</span><span class='va'>f</span>, verbose <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>load_vcf_file</span><span class='op'>(</span><span class='va'>f</span>, <span class='va'>...</span>, verbose <span class='op'>=</span> <span class='cn'>TRUE</span>, annot <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -122,8 +122,16 @@
       <td><p>File name</p></td>
     </tr>
     <tr>
+      <th>...</th>
+      <td><p>Other optional arguments.</p></td>
+    </tr>
+    <tr>
       <th>verbose</th>
-      <td><p>Verbosity flag</p></td>
+      <td><p>Verbosity flag (Default: TRUE)</p></td>
+    </tr>
+    <tr>
+      <th>annot</th>
+      <td><p>Flag indicating if variant annotations should be added (Default: TRUE)</p></td>
     </tr>
     </table>
 
@@ -137,8 +145,8 @@
 #&gt; </span>
 #&gt;   File infos:
 #&gt;    - Name: '<span style='font-weight: bold;'>platypus.vcf.bgz</span>'
-#&gt;    - Created: <span style='font-weight: bold;'>2021-08-19 13:20:41</span> 
-#&gt;    - Modified: <span style='font-weight: bold;'>2021-08-19 13:20:38</span> 
+#&gt;    - Created: <span style='font-weight: bold;'>2021-08-26 10:31:17</span> 
+#&gt;    - Modified: <span style='font-weight: bold;'>2021-08-26 10:31:13</span> 
 #&gt; 
 #&gt;   Identifying type... 
 #&gt;    =&gt; Type is <span style='color: #00BB00;'>'Platpyus'</span>.
@@ -148,10 +156,39 @@
 #&gt;    =&gt; Of these <span style='font-weight: bold;'>2/2</span> <span style='font-weight: bold;'>(100%)</span> marked passing.
 #&gt;    =&gt; On <span style='font-weight: bold;'>1</span> chromosomes
 #&gt; 
-#&gt;  <span style='font-weight: bold;'>--------------------------------------------------</span></div><div class='output co'>#&gt; class: CollapsedVCF 
+#&gt;   Guessing reference of a vcf file:</div><div class='output co'>#&gt; <span class='message'></span>
+#&gt; <span class='message'>Attaching package: ‘BiocGenerics’</span></div><div class='output co'>#&gt; <span class='message'>The following objects are masked from ‘package:parallel’:</span>
+#&gt; <span class='message'></span>
+#&gt; <span class='message'>    clusterApply, clusterApplyLB, clusterCall, clusterEvalQ,</span>
+#&gt; <span class='message'>    clusterExport, clusterMap, parApply, parCapply, parLapply,</span>
+#&gt; <span class='message'>    parLapplyLB, parRapply, parSapply, parSapplyLB</span></div><div class='output co'>#&gt; <span class='message'>The following objects are masked from ‘package:stats’:</span>
+#&gt; <span class='message'></span>
+#&gt; <span class='message'>    IQR, mad, sd, var, xtabs</span></div><div class='output co'>#&gt; <span class='message'>The following objects are masked from ‘package:base’:</span>
+#&gt; <span class='message'></span>
+#&gt; <span class='message'>    anyDuplicated, append, as.data.frame, basename, cbind, colnames,</span>
+#&gt; <span class='message'>    dirname, do.call, duplicated, eval, evalq, Filter, Find, get, grep,</span>
+#&gt; <span class='message'>    grepl, intersect, is.unsorted, lapply, Map, mapply, match, mget,</span>
+#&gt; <span class='message'>    order, paste, pmax, pmax.int, pmin, pmin.int, Position, rank,</span>
+#&gt; <span class='message'>    rbind, Reduce, rownames, sapply, setdiff, sort, table, tapply,</span>
+#&gt; <span class='message'>    union, unique, unsplit, which.max, which.min</span></div><div class='output co'>#&gt; <span class='message'></span>
+#&gt; <span class='message'>Attaching package: ‘S4Vectors’</span></div><div class='output co'>#&gt; <span class='message'>The following objects are masked from ‘package:base’:</span>
+#&gt; <span class='message'></span>
+#&gt; <span class='message'>    expand.grid, I, unname</span></div><div class='output co'>#&gt; <span class='message'></span>
+#&gt; <span class='message'>Attaching package: ‘Biostrings’</span></div><div class='output co'>#&gt; <span class='message'>The following object is masked from ‘package:base’:</span>
+#&gt; <span class='message'></span>
+#&gt; <span class='message'>    strsplit</span></div><div class='output co'>#&gt;    =&gt; Testing 1/1 available options.
+#&gt;    =&gt; Found 1/1 perfectly matching.
+#&gt;    =&gt; Reference is '<span style='color: #00BB00;'>BSgenome.Hsapiens.UCSC.hg38</span>'.</div><div class='output co'>#&gt; <span class='message'>Welcome to Bioconductor</span>
+#&gt; <span class='message'></span>
+#&gt; <span class='message'>    Vignettes contain introductory material; view with</span>
+#&gt; <span class='message'>    'browseVignettes()'. To cite Bioconductor, see</span>
+#&gt; <span class='message'>    'citation("Biobase")', and for packages 'citation("pkgname")'.</span></div><div class='output co'>#&gt; 
+#&gt;   Generating annotations:
+#&gt;   
+#&gt;  <span style='font-weight: bold;'>--------------------------------------------------</span> </div><div class='output co'>#&gt; class: CollapsedVCF 
 #&gt; dim: 2 2 
 #&gt; rowRanges(vcf):
-#&gt;   GRanges with 5 metadata columns: paramRangeID, REF, ALT, QUAL, FILTER
+#&gt;   GRanges with 6 metadata columns: paramRangeID, ANNOTATION, REF, ALT, QUAL, FILTER
 #&gt; info(vcf):
 #&gt;   DataFrame with 25 columns: FR, MMLQ, TCR, HP, WE, Source, FS, WS, PP, TR, ...
 #&gt; info(header(vcf)):
