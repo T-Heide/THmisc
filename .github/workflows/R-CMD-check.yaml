@@ -22,8 +22,9 @@ jobs:
       - uses: r-lib/actions/setup-r@v1
       - name: Install dependencies
         run: |
-          install.packages(c("remotes", "rcmdcheck"))
-          remotes::install_bioc(c("VariantAnnotation", "GenomicRanges", "SummarizedExperiment","TxDb.Hsapiens.UCSC.hg38.knownGene","BSgenome.Hsapiens.UCSC.hg38","org.Hs.eg.db"))
+          install.packages(c('remotes','BiocManager'))
+          remotes::install_bioc(c("VariantAnnotation", "GenomicRanges", "SummarizedExperiment"))
+          BiocManager::install(c("TxDb.Hsapiens.UCSC.hg38.knownGene","BSgenome.Hsapiens.UCSC.hg38","org.Hs.eg.db"))
           remotes::install_deps(dependencies = TRUE)
         shell: Rscript {0}
       - name: Check

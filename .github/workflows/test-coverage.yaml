@@ -38,9 +38,10 @@ jobs:
 
       - name: Install dependencies
         run: |
-          install.packages(c("remotes"))
+          install.packages(c('remotes','BiocManager'))
+          remotes::install_bioc(c("VariantAnnotation", "GenomicRanges", "SummarizedExperiment"))
+          BiocManager::install(c("TxDb.Hsapiens.UCSC.hg38.knownGene","BSgenome.Hsapiens.UCSC.hg38","org.Hs.eg.db"))
           remotes::install_deps(dependencies = TRUE)
-          remotes::install_bioc(c("VariantAnnotation", "GenomicRanges", "SummarizedExperiment","TxDb.Hsapiens.UCSC.hg38.knownGene","BSgenome.Hsapiens.UCSC.hg38","org.Hs.eg.db"))
           remotes::install_cran("covr")
         shell: Rscript {0}
 
