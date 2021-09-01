@@ -186,7 +186,7 @@ guess_reference_genome = function(d, verbose=TRUE) {
   rn = SummarizedExperiment::rowRanges(d)
 
   genomes_matches =
-    sapply(genomes_avail, \(g) {
+    sapply(genomes_avail, function(g) {
       suppressMessages(suppressWarnings(tryCatch(
         all(as.character(BSgenome::getSeq(g, rn)) == rn$REF),
         error=function(x) return(FALSE)
@@ -340,7 +340,7 @@ add_annot_wrapper = function(data, verbose=TRUE) {
             columns = c("ENTREZID", "SYMBOL"),
             keytype = "ENTREZID"
           )
-        ) %>% (\(x) magrittr::set_names(x$SYMBOL, x$ENTREZID))
+        ) %>% (function(x) magrittr::set_names(x$SYMBOL, x$ENTREZID))
 
 
       .get_annot_string = function(mid) {
