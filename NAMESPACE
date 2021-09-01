@@ -2,6 +2,7 @@
 
 export(annotation_from_barcode)
 export(annotation_from_barcode_epicc)
+export(annotation_from_barcode_tcga)
 export(indentify_vcf_type)
 export(insert_vaf)
 export(load_vcf_file)
