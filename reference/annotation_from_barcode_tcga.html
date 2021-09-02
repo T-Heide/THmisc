@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function reference • THmisc</title>
+<title>TCGA project: Create a annotation for a vector of TCGA barcodes. — annotation_from_barcode_tcga • THmisc</title>
 
 
 <!-- jquery -->
@@ -39,7 +39,8 @@
 
 
 
-<meta property="og:title" content="Function reference" />
+<meta property="og:title" content="TCGA project: Create a annotation for a vector of TCGA barcodes. — annotation_from_barcode_tcga" />
+<meta property="og:description" content="TCGA project: Create a annotation for a vector of TCGA barcodes." />
 
 
 
@@ -58,7 +59,7 @@
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    <div class="container template-reference-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -100,108 +101,49 @@
       </header>
 
 <div class="row">
-  <div class="contents col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Reference</h1>
+    <h1>TCGA project: Create a annotation for a vector of TCGA barcodes.</h1>
+    
+    <div class="hidden name"><code>annotation_from_barcode_tcga.Rd</code></div>
     </div>
 
-    <table class="ref-index">
+    <div class="ref-description">
+    <p>TCGA project: Create a annotation for a vector of TCGA barcodes.</p>
+    </div>
 
-    <colgroup>
-      
-      <col class="alias" />
-      <col class="title" />
-    </colgroup>
+    <pre class="usage"><span class='fu'>annotation_from_barcode_tcga</span><span class='op'>(</span><span class='va'>barcodes</span>, extract <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></pre>
 
-    <tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-all-functions" class="hasAnchor"><a href="#section-all-functions" class="anchor"></a>All functions</h2>
-          <p class="section-desc"></p>
-        </th>
-      </tr>
-      
-      
-    </tbody><tbody>
-      
-      
-      <tr>
-        
-        <td>
-          <p><code><a href="annotation_from_barcode.html">annotation_from_barcode()</a></code> </p>
-        </td>
-        <td><p>Get sample annotations from sample barcodes.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="annotation_from_barcode_epicc.html">annotation_from_barcode_epicc()</a></code> </p>
-        </td>
-        <td><p>Get sample annotations from EPICC barcodes.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="annotation_from_barcode_tcga.html">annotation_from_barcode_tcga()</a></code> </p>
-        </td>
-        <td><p>TCGA project: Create a annotation for a vector of TCGA barcodes.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="gene_lists.html">gene_lists</a></code> </p>
-        </td>
-        <td><p>List of genes for various analysis</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="get_vaf.html">get_vaf()</a></code> </p>
-        </td>
-        <td><p>Internal function to extract VAF information from any 'CollapsedVCF' object.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="guess_reference_genome.html">guess_reference_genome()</a></code> </p>
-        </td>
-        <td><p>A internal function to guess the reference genome of a 'CollapsedVCF' object.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="indentify_vcf_type.html">indentify_vcf_type()</a></code> </p>
-        </td>
-        <td><p>Function to identify which tool created a given vcf file</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="insert_vaf.html">insert_vaf()</a></code> </p>
-        </td>
-        <td><p>Adds an additional VAF entry to a 'CollapsedVCF' object.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="load_platypus_vcf.html">load_platypus_vcf()</a></code> </p>
-        </td>
-        <td><p>Internal wrapper function to load a Platypus vcf into a format usable for common purposes</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="load_vcf_file.html">load_vcf_file()</a></code> </p>
-        </td>
-        <td><p>Wrapper function to load arbitrary VCF files.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="print_file_info.html">print_file_info()</a></code> </p>
-        </td>
-        <td><p>A internal function to print basic file statistics</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="print_vcf_content.html">print_vcf_content()</a></code> </p>
-        </td>
-        <td><p>A internal function that summarised the content of a 'CollapsedVCF' object.</p></td>
-      </tr>
-    </tbody>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>barcodes</th>
+      <td><p>A character vector of TCGA sample barcodes.</p></td>
+    </tr>
+    <tr>
+      <th>extract</th>
+      <td><p>Logical flag if barcodes should be extracted from 'barcodes' (Default: False).</p></td>
+    </tr>
     </table>
-  </div>
 
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>A data frame with sample annotations.</p>
+
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='fu'>annotation_from_barcode_tcga</span><span class='op'>(</span><span class='st'>"TCGA-02-0001-01C-01D"</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;                Barcode Project.ID TSS.Code Study.Abbreviation
+#&gt; 1 TCGA-02-0001-01C-01D       TCGA       02                GBM
+#&gt;                Study.Name Patient.ID Type.ID Type.Short.Letter.Code
+#&gt; 1 Glioblastoma multiforme       0001      01                   &lt;NA&gt;
+#&gt;   Type.Definition Vial Portion Analyte.ID Analyte.Name Plate.ID Center.ID
+#&gt; 1             DNA    C      01          D          DNA     &lt;NA&gt;      &lt;NA&gt;
+#&gt;   Center.Name Center.Type Center.Display.Name Source.ID
+#&gt; 1        &lt;NA&gt;        &lt;NA&gt;                &lt;NA&gt;       IGC
+#&gt;                 Source.Site
+#&gt; 1 MD Anderson Cancer Center</div></pre>
+  </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
       <h2 data-toc-skip>Contents</h2>
