@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function reference • THmisc</title>
+<title>Convience function to load Sequenza segment files. — load_sequenza_segment_files • THmisc</title>
 
 
 <!-- jquery -->
@@ -39,7 +39,8 @@
 
 
 
-<meta property="og:title" content="Function reference" />
+<meta property="og:title" content="Convience function to load Sequenza segment files. — load_sequenza_segment_files" />
+<meta property="og:description" content="Convience function to load Sequenza segment files." />
 
 
 
@@ -58,7 +59,7 @@
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    <div class="container template-reference-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -100,90 +101,37 @@
       </header>
 
 <div class="row">
-  <div class="contents col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Reference</h1>
+    <h1>Convience function to load Sequenza segment files.</h1>
+    
+    <div class="hidden name"><code>load_sequenza_segment_files.Rd</code></div>
     </div>
 
-    <table class="ref-index">
+    <div class="ref-description">
+    <p>Convience function to load Sequenza segment files.</p>
+    </div>
 
-    <colgroup>
-      
-      <col class="alias" />
-      <col class="title" />
-    </colgroup>
+    <pre class="usage"><span class='fu'>load_sequenza_segment_files</span><span class='op'>(</span><span class='va'>files</span>, verbose <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre>
 
-    <tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-all-functions" class="hasAnchor"><a href="#section-all-functions" class="anchor"></a>All functions</h2>
-          <p class="section-desc"></p>
-        </th>
-      </tr>
-      
-      
-    </tbody><tbody>
-      
-      
-      <tr>
-        
-        <td>
-          <p><code><a href="annotation_from_barcode.html">annotation_from_barcode()</a></code> </p>
-        </td>
-        <td><p>Get sample annotations from sample barcodes.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="annotation_from_barcode_epicc.html">annotation_from_barcode_epicc()</a></code> </p>
-        </td>
-        <td><p>EPICC Project: Get sample annotations from sqmple barcodes.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="annotation_from_barcode_tcga.html">annotation_from_barcode_tcga()</a></code> </p>
-        </td>
-        <td><p>TCGA project: Create a annotation for a vector of TCGA barcodes.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="gene_lists.html">gene_lists</a></code> </p>
-        </td>
-        <td><p>List of genes for various analysis</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="indentify_vcf_type.html">indentify_vcf_type()</a></code> </p>
-        </td>
-        <td><p>Function to identify which tool created a given vcf file</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="insert_vaf.html">insert_vaf()</a></code> </p>
-        </td>
-        <td><p>Adds an additional VAF entry to a 'CollapsedVCF' object.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="load_sequenza_purity_files.html">load_sequenza_purity_files()</a></code> </p>
-        </td>
-        <td><p>Convience function to load Sequenza fit files.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="load_sequenza_segment_files.html">load_sequenza_segment_files()</a></code> </p>
-        </td>
-        <td><p>Convience function to load Sequenza segment files.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="load_vcf_file.html">load_vcf_file()</a></code> </p>
-        </td>
-        <td><p>Wrapper function to load arbitrary VCF files.</p></td>
-      </tr>
-    </tbody>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>files</th>
+      <td><p>Vector of files to load.</p></td>
+    </tr>
+    <tr>
+      <th>verbose</th>
+      <td><p>Verbosity flag (Default: FALSE).</p></td>
+    </tr>
     </table>
-  </div>
 
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>Returns a list containing per sample data.</p>
+
+  </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
       <h2 data-toc-skip>Contents</h2>
