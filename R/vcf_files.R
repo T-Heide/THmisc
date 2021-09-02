@@ -380,10 +380,13 @@ add_annot_wrapper = function(data, verbose=TRUE) {
         )
 
       }
-
+      
       if (verbose) {
         cat("\n")
-        cat("  Generating annotations:\n  ")
+        cat("  Generating annotations...\n  ")
+      }
+
+      if (verbose & requireNamespace("pbapply", quietly = TRUE)) {
         annot_strings = pbapply::pbsapply(rownames(data), .get_annot_string)
       }  else {
         annot_strings = sapply(rownames(data), .get_annot_string)

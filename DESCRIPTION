@@ -12,7 +12,8 @@ Suggests:
     BSgenome.Hsapiens.UCSC.hg38,
     BSgenome.Hsapiens.UCSC.hg19,
     BSgenome.Hsapiens.UCSC.hg18,
-    TxDb.Hsapiens.UCSC.hg38.knownGene
+    TxDb.Hsapiens.UCSC.hg38.knownGene,
+    pbapply 
 Imports:
     dplyr,
     VariantAnnotation,
@@ -22,9 +23,9 @@ Imports:
     SummarizedExperiment,
     BSgenome,
     org.Hs.eg.db,
-    pbapply,
     magrittr,
-    AnnotationDbi
+    AnnotationDbi,
+    readr
 Config/testthat/edition: 3
 Encoding: UTF-8
 LazyData: true
