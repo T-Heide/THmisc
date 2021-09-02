@@ -13,7 +13,7 @@ Suggests:
     BSgenome.Hsapiens.UCSC.hg19,
     BSgenome.Hsapiens.UCSC.hg18,
     TxDb.Hsapiens.UCSC.hg38.knownGene,
-    pbapply 
+    pbapply
 Imports:
     dplyr,
     VariantAnnotation,

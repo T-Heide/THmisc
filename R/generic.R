@@ -3,6 +3,7 @@
 #' @param f A file.
 #'
 #' @return NILL
+#' @keywords internal
 print_file_info = function(f) {
   checkmate::assertFileExists(f, access="r")
 

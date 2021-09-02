@@ -17,3 +17,4 @@ Name of the matching reference genome
 \description{
 A internal function to guess the reference genome of a 'CollapsedVCF' object.
 }
+\keyword{internal}

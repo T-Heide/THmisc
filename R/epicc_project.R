@@ -1,4 +1,4 @@
-#' Get sample annotations from EPICC barcodes.
+#' EPICC Project: Get sample annotations from sqmple barcodes.
 #'
 #' @param barcodes A character vector of EPICC sample barcodes.
 #' @param extract Logical flag if barcodes should be extracted from 'barcodes' (Default: False).

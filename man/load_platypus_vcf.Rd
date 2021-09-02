@@ -15,3 +15,4 @@ A object of class 'CollapsedVCF'
 \description{
 Internal wrapper function to load a Platypus vcf into a format usable for common purposes
 }
+\keyword{internal}

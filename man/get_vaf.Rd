@@ -15,3 +15,4 @@ A numeric vector containing the VAF data.
 \description{
 Internal function to extract VAF information from any 'CollapsedVCF' object.
 }
+\keyword{internal}

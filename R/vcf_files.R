@@ -3,6 +3,7 @@
 #' @param d Object of class 'CollapsedVCF'
 #'
 #' @return A numeric vector containing the VAF data.
+#' @keywords internal
 get_vaf = function(d) {
 
   checkmate::assertClass(d, "CollapsedVCF")
@@ -71,6 +72,7 @@ insert_vaf = function(d) {
 #' @param f A Platypus VCF file
 #'
 #' @return A object of class 'CollapsedVCF'
+#' @keywords internal
 load_platypus_vcf = function(f) {
 
   # check arguments
@@ -116,6 +118,7 @@ indentify_vcf_type = function(f) {
 #' @param d A 'CollapsedVCF' object.
 #'
 #' @return NILL
+#' @keywords internal
 print_vcf_content = function(d) {
   checkmate::assertClass(d, "CollapsedVCF")
 
@@ -140,6 +143,7 @@ print_vcf_content = function(d) {
 #' @param verbose Verbosity flag (Default: TRUE)
 #'
 #' @return Name of the matching reference genome
+#' @keywords internal
 guess_reference_genome = function(d, verbose=TRUE) {
   checkmate::assertClass(d, "CollapsedVCF")
 

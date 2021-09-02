@@ -15,3 +15,4 @@ NILL
 \description{
 A internal function that summarised the content of a 'CollapsedVCF' object.
 }
+\keyword{internal}
