@@ -369,6 +369,12 @@ load_vcf_file = function(f, ..., verbose=TRUE, annot=TRUE) {
   checkmate::assertFlag(annot, add=cl)
   checkmate::reportAssertions(cl)
 
+  # create index if it does not exist
+  if (!file.exists(paste0(f, ".tbi"))) {
+    VariantAnnotation::indexVcf(f)
+  }
+  
+  
   # identify type of vcf file
   if (verbose) {
 
