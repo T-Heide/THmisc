@@ -82,10 +82,142 @@ load_platypus_vcf = function(f) {
 
   # load and modify platpyus vcf file
   d = VariantAnnotation::readVcf(f) %>%
+    split_multiallelic() %>%
     insert_vaf()
 
-
   return(d)
+}
+
+
+
+get_csq_parser = function(d) {
+  # parse the csq annotation header:
+  csq_annot = info(header(d))["CSQ","Description"]
+  csq_format = strsplit(gsub("^.*Format: ", "", csq_annot), split="[|]")[[1]]
+  (function(l) {return({
+    function(e=NULL, f=NULL) {
+      
+      if (is.null(e)) {
+        cat("Field:\n")
+        print(csq_format)
+        invisible(csq_format)
+      } else {
+        if (is.null(f)) {
+          stop("Need to pass e and f.\n")
+        }
+      }
+      
+      if (is.character(e)) {
+        e = strsplit(e, split="[|]")
+      }
+      
+      idx = match(f, l)
+      if (length(e) > 1) {
+        res = sapply(e, function(e_) e_[idx])
+      } else {
+        res = e[idx]
+      }
+      
+      invisible(res)
+    }
+  })})(csq_format)
+}
+
+
+#' Function to split multiallelic sites into multi variants
+#'
+#' @param d Object of class 'CollapsedVCF'
+#'
+#' @return Object of class 'CollapsedVCF' with multiallelic sites split
+#' @export
+split_multiallelic = function(d) {
+
+  .split = function(d_cur, j) {
+    
+    # info elements:
+    for (el in c("FR","PP","TR","NF","NR","FS")) {
+      VariantAnnotation::info(d_cur)[1,el][[1]] = 
+        VariantAnnotation::info(d_cur)[1,el][[1]][j]
+    }
+    
+    # csq string:
+    if ("CSQ" %in% names(info(d_cur))) {
+      alleles = csq_parser(VariantAnnotation::info(d_cur)$CSQ[[1]], "Allele")
+      alleles[alleles == "-"] = ""
+      u_alleles = unique(alleles)
+      
+      # assume csq are in order, stop if not
+      alt = as.character(VariantAnnotation::alt(d_cur)[[1]])
+      stopifnot(all(nchar(alt) - min(nchar(alt)) == nchar(alleles) - min(nchar(alleles))))
+      
+      wh_csq = alleles == u_alleles[j]
+      
+      VariantAnnotation::info(d_cur)$CSQ[[1]] = 
+        VariantAnnotation::info(d_cur)$CSQ[[1]][wh_csq]
+    }
+    
+    # gt string:
+    VariantAnnotation::geno(d_cur)$GT = 
+      VariantAnnotation::geno(d_cur)$GT %>% 
+      gsub(pattern = as.character(j), replacement = "X") %>% 
+      gsub(pattern = "[1-9]", replacement = "0") %>% 
+      gsub(pattern = "X", replacement = "1")
+    
+    
+    for (l in seq_len(NCOL(d_cur))){
+      VariantAnnotation::geno(d_cur)$NR[,l] = 
+        VariantAnnotation::geno(d_cur)$NR[,l][[1]][j]
+      VariantAnnotation::geno(d_cur)$NV[,l] = 
+        VariantAnnotation::geno(d_cur)$NV[,l][[1]][j]
+    }
+    
+    VariantAnnotation::alt(d_cur) = 
+      Biostrings::DNAStringSetList(VariantAnnotation::alt(d_cur)[[1]][j]) # alt reads
+    
+    d_cur
+  }
+  
+  checkmate::assertClass(d, "CollapsedVCF")
+  
+  wh = S4Vectors::elementNROWS(VariantAnnotation::alt(d)) == 1
+  d_ret = d[wh,]
+  
+  n_sites = sum(!wh)
+  if (n_sites == 0) return(d_ret)
+  
+  pb_style = "   [:bar] :percent eta: :eta"
+  cat("   => Splitting", n_sites, "multi-allelic sites...\n")
+  pb = progress::progress_bar$new(pb_style, n_sites,  60, force = TRUE)
+  d_add = NULL
+  csq_parser = get_csq_parser(d)
+  
+  for (i in which(!wh)) {
+    pb$tick()
+    n_elements = S4Vectors::elementNROWS(VariantAnnotation::alt(d))[i]
+    for (j in seq_len(n_elements)) {
+      d_cur = .split(d[i,], j)
+      if (is.null(d_add)) {
+        d_add = d_cur
+      } else {
+        d_add = VariantAnnotation::rbind(d_add, d_cur)
+      }
+    }
+  }
+  pb$terminate()
+  
+  res = VariantAnnotation::rbind(d_ret, d_add)
+  res = res[order(res),]
+  
+  rownames(res) = 
+    sprintf(
+      "%s:%d_%s/%s",
+      GenomicRanges::seqnames(res),
+      GenomicRanges::start(res),
+      as.character(VariantAnnotation::ref(res)),
+      as.character(unlist(VariantAnnotation::alt(res)))
+    )
+  
+  return(res)
 }
 
 
