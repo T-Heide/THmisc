@@ -390,10 +390,11 @@ load_vcf_file = function(f, ..., verbose=TRUE, annot=TRUE) {
   # load file
   if (vcf_type == "platypus") {
     if (verbose) {
-      cat("   => Type is ", crayon::green("'Platpyus'"), ".\n", sep="")
-      data = suppressMessages(load_platypus_vcf(f))
-    } else {
+      cat("   => Type is ", crayon::green("'Platpyus'"), ".\n\n", sep="")
+      cat("  Loading data... \n")
       data = load_platypus_vcf(f)
+    } else {
+      data = suppressMessages(load_platypus_vcf(f))
     }
   } else if (vcf_type == "mutect2") {
     if (verbose) cat("   => Type is ", crayon::red("Mutect2"), ".\n", sep="")
