@@ -7,7 +7,7 @@
 annotation_from_barcode(barcodes, extract = FALSE)
 }
 \arguments{
-\item{barcodes}{A character vector of sample barcodes.}
+\item{barcodes}{A character (or factor) vector of sample barcodes.}
 
 \item{extract}{Logical flag if barcodes should be extracted from 'barcodes' (Default: False).}
 }
