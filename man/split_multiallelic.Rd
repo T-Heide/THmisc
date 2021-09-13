@@ -2,7 +2,7 @@
 % Please edit documentation in R/vcf_files.R
 \name{split_multiallelic}
 \alias{split_multiallelic}
-\title{Function to split multiallelic sites into multi variants}
+\title{Function to split multiallelic sites into multiple variants}
 \usage{
 split_multiallelic(d)
 }
@@ -13,5 +13,5 @@ split_multiallelic(d)
 Object of class 'CollapsedVCF' with multiallelic sites split
 }
 \description{
-Function to split multiallelic sites into multi variants
+Function to split multiallelic sites into multiple variants
 }

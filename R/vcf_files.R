@@ -112,19 +112,14 @@ get_csq_parser = function(d) {
       }
       
       idx = match(f, l)
-      if (length(e) > 1) {
-        res = sapply(e, function(e_) e_[idx])
-      } else {
-        res = e[idx]
-      }
-      
-      invisible(res)
+      res = sapply(e, function(e_) e_[idx])
+      return(res)
     }
   })})(csq_format)
 }
 
 
-#' Function to split multiallelic sites into multi variants
+#' Function to split multiallelic sites into multiple variants
 #'
 #' @param d Object of class 'CollapsedVCF'
 #'
@@ -132,79 +127,118 @@ get_csq_parser = function(d) {
 #' @export
 split_multiallelic = function(d) {
 
-  .split = function(d_cur, j) {
+  .get_eq_if_default = function(x, y) {
+    # modifies alt alleles to match csq output
+    # x: ref allele, y: alt allele from header
+    if (all(substr(y, 1, 1) == substr(x, 1, 1))) {
+      y = substr(y, 2, nchar(y))
+      y[y == ""] = "-"
+    } 
+    
+    y
+  }
+  
+  .split = function(d_cur, i) {
     
     # info elements:
     for (el in c("FR","PP","TR","NF","NR","FS")) {
-      VariantAnnotation::info(d_cur)[1,el][[1]] = 
-        VariantAnnotation::info(d_cur)[1,el][[1]][j]
+      if (el %in% names(VariantAnnotation::info(d_cur))){
+        VariantAnnotation::info(d_cur)[,el] = 
+          S4Vectors::endoapply(VariantAnnotation::info(d_cur)[,el],  "[", i)
+      }
     }
     
     # csq string:
-    if ("CSQ" %in% names(info(d_cur))) {
-      alleles = csq_parser(VariantAnnotation::info(d_cur)$CSQ[[1]], "Allele")
-      alleles[alleles == "-"] = ""
-      u_alleles = unique(alleles)
+    if ("CSQ" %in% names(VariantAnnotation::info(d_cur))) {
       
-      # assume csq are in order, stop if not
-      alt = as.character(VariantAnnotation::alt(d_cur)[[1]])
-      stopifnot(all(nchar(alt) - min(nchar(alt)) == nchar(alleles) - min(nchar(alleles))))
+      # get allele infos from vcf
+      alts = S4Vectors::lapply(VariantAnnotation::alt(d_cur), as.character)
+      ref = as.character(VariantAnnotation::ref(d_cur))
+      al_keep = lapply(alts, "[", i)
       
-      wh_csq = alleles == u_alleles[j]
+      # get alt alleles from csq
+      csqs = VariantAnnotation::info(d_cur)$CSQ
+      al_nums = S4Vectors::lapply(csqs, csq_parser, "ALLELE_NUM")
       
-      VariantAnnotation::info(d_cur)$CSQ[[1]] = 
-        VariantAnnotation::info(d_cur)$CSQ[[1]][wh_csq]
+      if (any(is.na(unlist(al_nums)))) {
+
+        # try modifying the alles so that is matched the ones in CSQ
+        # if this fails than CSQ was run with non default options
+        al_csq = S4Vectors::lapply(csqs, csq_parser, "Allele")
+        exp_csq = mapply(.get_eq_if_default, ref, alts, SIMPLIFY = FALSE)
+
+        if (!all(unlist(mapply("%in%", al_csq, exp_csq)))) { 
+          # probably the minimal option was used,
+          # in this case estimating the csq allele annotation is not 
+          # done. Complain and exit.
+          paste0(      # print warning that ALLELE_NUM are missing and stop.
+            "Couldn't find ", sQuote("ALLELE_NUM"), " in the CSQ annotations!\n",
+            "  => Please rerun VEP with ", sQuote("--allele_number"), " added."
+          ) %>% stop()
+        }
+        
+        al_nums = mapply(match, al_csq, exp_csq, SIMPLIFY = FALSE)
+        
+      }
+      
+      # keep the select allele from the csq elements
+      VariantAnnotation::info(d_cur)$CSQ = 
+        mapply("[", csqs, lapply(al_nums, "==", i), SIMPLIFY=0) %>% 
+        CharacterList()
+      
     }
+    
     
     # gt string:
     VariantAnnotation::geno(d_cur)$GT = 
       VariantAnnotation::geno(d_cur)$GT %>% 
-      gsub(pattern = as.character(j), replacement = "X") %>% 
+      gsub(pattern = as.character(i), replacement = "X") %>% 
       gsub(pattern = "[1-9]", replacement = "0") %>% 
       gsub(pattern = "X", replacement = "1")
     
     
     for (l in seq_len(NCOL(d_cur))){
       VariantAnnotation::geno(d_cur)$NR[,l] = 
-        VariantAnnotation::geno(d_cur)$NR[,l][[1]][j]
+        S4Vectors::endoapply(VariantAnnotation::geno(d_cur)$NR[,l],  "[", i)
+      
       VariantAnnotation::geno(d_cur)$NV[,l] = 
-        VariantAnnotation::geno(d_cur)$NV[,l][[1]][j]
+        S4Vectors::endoapply(VariantAnnotation::geno(d_cur)$NV[,l],  "[", i)
     }
     
-    VariantAnnotation::alt(d_cur) = 
-      Biostrings::DNAStringSetList(VariantAnnotation::alt(d_cur)[[1]][j]) # alt reads
+    VariantAnnotation::alt(d_cur) = # alt reads
+      S4Vectors::lapply(VariantAnnotation::alt(d_cur),  "[", i) %>% 
+      Biostrings::DNAStringSetList() 
     
     d_cur
   }
   
   checkmate::assertClass(d, "CollapsedVCF")
   
-  wh = S4Vectors::elementNROWS(VariantAnnotation::alt(d)) == 1
+  # keep elements with one allele
+  n_elements = S4Vectors::elementNROWS(VariantAnnotation::alt(d))
+  wh = n_elements == 1
   d_ret = d[wh,]
   
+  # if no biallelic return data
   n_sites = sum(!wh)
-  if (n_sites == 0) return(d_ret)
-  
-  pb_style = "   [:bar] :percent eta: :eta"
-  cat("   => Splitting", n_sites, "multi-allelic sites...\n")
-  pb = progress::progress_bar$new(pb_style, n_sites,  60, force = TRUE)
+  if (n_sites == 0) 
+    return(d_ret)
+
+  # parse mutli-allelic sites  
   d_add = NULL
   csq_parser = get_csq_parser(d)
-  
-  for (i in which(!wh)) {
-    pb$tick()
-    n_elements = S4Vectors::elementNROWS(VariantAnnotation::alt(d))[i]
-    for (j in seq_len(n_elements)) {
-      d_cur = .split(d[i,], j)
-      if (is.null(d_add)) {
-        d_add = d_cur
-      } else {
-        d_add = VariantAnnotation::rbind(d_add, d_cur)
-      }
+  max_n_elements = max(n_elements)
+  for (i in seq(1, max_n_elements)) {
+    idx = n_elements > 1 & n_elements >= i
+    if (sum(idx) == 0) next()
+    d_cur = .split(d[idx,], i)
+    if (is.null(d_add)) {
+      d_add = d_cur
+    } else {
+      d_add = VariantAnnotation::rbind(d_add, d_cur)
     }
   }
-  pb$terminate()
-  
+
   res = VariantAnnotation::rbind(d_ret, d_add)
   res = res[order(res),]
   
