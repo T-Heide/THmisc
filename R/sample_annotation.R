@@ -14,6 +14,9 @@ annotation_from_barcode = function(barcodes, extract=FALSE) {
   checkmate::assertCharacter(barcodes, null.ok = FALSE)
   checkmate::assertFlag(extract)
   
+  if (length(barcodes) == 0)
+    return(NULL)
+  
   # if any barcodes are duplicated only annotate unique barcodes
   if (any(duplicated(barcodes))) {
     annot = annotation_from_barcode_epicc(unique(barcodes))[barcodes,]
