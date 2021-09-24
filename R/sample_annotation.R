@@ -19,17 +19,25 @@ annotation_from_barcode = function(barcodes, extract=FALSE) {
   
   # if any barcodes are duplicated only annotate unique barcodes
   if (any(duplicated(barcodes))) {
-    annot = annotation_from_barcode_epicc(unique(barcodes))[barcodes,]
+    annot = annotation_from_barcode(unique(barcodes))[barcodes,]
     rownames(annot) = NULL
     return(annot)
   }
   
-  # try annotation with EPICC project barcodes
-  try({
-    annot = annotation_from_barcode_epicc(barcodes, extract)
-    rownames(annot) = barcodes
-    return(annot)
-  }, silent = TRUE)
+  # try annotation with all known barcode fucntions
+  annot_fun_to_test = 
+    list(
+      THmisc::annotation_from_barcode_epicc,
+      THmisc::annotation_from_barcode_tcga
+    )
+  
+  for (annot_fun in annot_fun_to_test) {
+    try({
+      annot = annotation_from_barcode_epicc(barcodes, extract)
+      rownames(annot) = barcodes
+      return(annot)
+    }, silent = TRUE)
+  }
   
   stop("Couldn't annotate barcodes.\n")
 }
