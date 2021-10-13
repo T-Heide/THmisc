@@ -20,6 +20,10 @@ get_vaf = function(d) {
     NV = VariantAnnotation::geno(d)$NV; storage.mode(NV) = "numeric"
     VAF = NV / NR
 
+  } else if ("AF" %in% geno_el) { 
+    # use the existing AF element 
+    VAF = VariantAnnotation::geno(d)$AF
+    
   } else {
     #-------------------------------------------------------
     # stop
@@ -89,10 +93,31 @@ load_platypus_vcf = function(f) {
 }
 
 
+#' Internal wrapper function to load a Mutect2 vcf into a format usable for common purposes
+#'
+#' @param f A Platypus VCF file
+#'
+#' @return A object of class 'CollapsedVCF'
+#' @keywords internal
+load_mutect2_vcf = function(f) {
+  
+  # check arguments
+  cl = checkmate::makeAssertCollection()
+  checkmate::assertFileExists(f, access="r", add=cl)
+  checkmate::reportAssertions(cl)
+  
+  # load and modify platpyus vcf file
+  d = VariantAnnotation::readVcf(f) %>%
+    THmisc:::drop_multiallelic() %>%
+    THmisc:::insert_vaf()
+  
+  return(d)
+}
+
 
 get_csq_parser = function(d) {
   # parse the csq annotation header:
-  csq_annot = info(header(d))["CSQ","Description"]
+  csq_annot = VariantAnnotation::info(VariantAnnotation::header(d))["CSQ","Description"]
   csq_format = strsplit(gsub("^.*Format: ", "", csq_annot), split="[|]")[[1]]
   (function(l) {return({
     function(e=NULL, f=NULL) {
@@ -141,7 +166,7 @@ split_multiallelic = function(d) {
   .split = function(d_cur, i) {
     
     # info elements:
-    for (el in c("FR","PP","TR","NF","NR","FS")) {
+    for (el in c("FR","PP","TR","NF","NR","FS","AS_UNIQ_ALT_READ_COUNT","MPOS","NALOD","POPAF","TLOD")) {
       if (el %in% names(VariantAnnotation::info(d_cur))){
         VariantAnnotation::info(d_cur)[,el] = 
           S4Vectors::endoapply(VariantAnnotation::info(d_cur)[,el],  "[", i)
@@ -275,6 +300,13 @@ indentify_vcf_type = function(f) {
       return("platypus")
   })
 
+  try({ # check if file is a vcf file from mutect2
+    meta = VariantAnnotation::meta(VariantAnnotation::header(d))
+    version = meta[["MutectVersion"]][,"Value"]
+    if (gsub("[.].*", "", version) == "2")
+      return("mutect2")
+  })
+  
   return("unknown")
 }
 
@@ -290,7 +322,7 @@ print_vcf_content = function(d) {
 
   # properties to print
   n_variants = NROW(d)
-  n_pass = sum(SummarizedExperiment::rowRanges(d)$FILTER == "PASS")
+  n_pass = sum(SummarizedExperiment::rowRanges(d)$FILTER %in% c("PASS","."))
   frac_pass = round(n_pass/n_variants*100, 1)
   n_chr = length(unique(GenomicRanges::seqnames(SummarizedExperiment::rowRanges(d))))
 
@@ -423,27 +455,34 @@ load_vcf_file = function(f, ..., verbose=TRUE, annot=TRUE) {
     print_file_info(f)
   }
 
+  # indentify the type of the vcf  
   if (verbose) cat("  Identifying type... \n")
   vcf_type = indentify_vcf_type(f)
   stopifnot(!is.na(vcf_type))
 
-  # load file
+  if (verbose) {
+    if (vcf_type %in% c("unknown")) {
+      type = crayon::red(sQuote(Hmisc::capitalize(vcf_type)))
+    } else {
+      type = crayon::green(sQuote(Hmisc::capitalize(vcf_type)))
+    }
+    cat("   => Type is ", type, ".\n\n", sep="")
+    cat("  Loading data... \n")
+  }
+  
+  
+  # load data
   if (vcf_type == "platypus") {
     if (verbose) {
-      cat("   => Type is ", crayon::green("'Platpyus'"), ".\n\n", sep="")
-      cat("  Loading data... \n")
       data = load_platypus_vcf(f)
     } else {
       data = suppressMessages(load_platypus_vcf(f))
     }
   } else if (vcf_type == "mutect2") {
-    if (verbose) cat("   => Type is ", crayon::red("Mutect2"), ".\n", sep="")
-    cat("\n", crayon::bold(div_l))
-    stop("Missing code...\n")
+    data = load_mutect2_vcf(f)
   } else {
-    if (verbose) cat("   => Type is ", crayon::red("Unknown"), ".\n", sep="")
-    cat("\n", crayon::bold(div_l))
-    stop("Unknown VCF file type...\n")  }
+    stop("Unknown VCF file type...\n")
+  }
 
   # report content of vcf file:
   if (verbose) {
@@ -577,4 +616,22 @@ add_annot_wrapper = function(data, verbose=TRUE) {
   }
 
   return(data)
+}
+
+
+
+#' Function to drop multiallelic sites from VCFs
+#'
+#' @param d Object of class 'CollapsedVCF'
+#'
+#' @return Object of class 'CollapsedVCF' with multiallelic sites split
+#' @export
+drop_multiallelic = function(d) {
+  wh = S4Vectors::elementNROWS(VariantAnnotation::alt(d)) == 1
+
+  if (any(!wh)) {
+    warning(sprintf("Dropping %d multiallelic sites!\n", sum(!wh)))
+  }
+
+  d[wh,]
 }
