@@ -59,7 +59,7 @@ annotation_from_barcode_epicc =
     )
     
     if (!exists("msi_positiv")) { # default value for msi positive cases if variable does not exist globally 
-      msi_positiv = c("C536","C548","C516","C518","C552")
+      msi_positiv = c("C536","C548","C516","C518","C552","C562")
     }
     
     if (!exists("msi_positiv_adenoma")) { # default value for msi positive cases if variable does not exist globally 
