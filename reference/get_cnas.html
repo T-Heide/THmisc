@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get sample annotations from sample barcodes. — annotation_from_barcode • THmisc</title>
+<title>Get CN annotations from a list of cn data. — get_cnas • THmisc</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Get sample annotations from sample barcodes. — annotation_from_barcode" />
-<meta property="og:description" content="Get sample annotations from sample barcodes." />
+<meta property="og:title" content="Get CN annotations from a list of cn data. — get_cnas" />
+<meta property="og:description" content="Get CN annotations from a list of cn data." />
 
 
 
@@ -103,47 +103,38 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get sample annotations from sample barcodes.</h1>
+    <h1>Get CN annotations from a list of cn data.</h1>
     
-    <div class="hidden name"><code>annotation_from_barcode.Rd</code></div>
+    <div class="hidden name"><code>get_cnas.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Get sample annotations from sample barcodes.</p>
+    <p>Get CN annotations from a list of cn data.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>annotation_from_barcode</span><span class='op'>(</span><span class='va'>barcodes</span>, extract <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>get_cnas</span><span class='op'>(</span><span class='va'>mutation_data</span>, <span class='va'>cna_segments</span>, sample_ids <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>barcodes</th>
-      <td><p>A character (or factor) vector of sample barcodes.</p></td>
+      <th>mutation_data</th>
+      <td><p>A CollapsedVCF object, GRanges object or a mutation id.</p></td>
     </tr>
     <tr>
-      <th>extract</th>
-      <td><p>Logical flag if barcodes should be extracted from 'barcodes' (Default: False).</p></td>
+      <th>cna_segments</th>
+      <td><p>A (named) list of CN segment data.</p></td>
+    </tr>
+    <tr>
+      <th>sample_ids</th>
+      <td><p>Indices of samples from 'cna_segments' to include in the output.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A data frame with sample annotations, rownames are set if there are no duplicated barcodes.</p>
+    <p>A matrix containing annotations for each mutation object.</p>
 
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><span class='r-in'><span class='fu'>annotation_from_barcode</span><span class='op'>(</span><span class='st'>"EPICC_C516_Z1_B1_D1"</span><span class='op'>)</span> <span class='co'># a EPICC sample barcode</span></span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>                     read_barcode lane_barcode iteration_barcode</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> EPICC_C516_Z1_B1_D1           NA           NA                NA</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>                          sample_barcode project patient region region_number</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> EPICC_C516_Z1_B1_D1 EPICC_C516_Z1_B1_D1   EPICC    C516      Z             1</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>                     sample_type sample_number analyte analyte_number iteration</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> EPICC_C516_Z1_B1_D1           B             1       D              1        NA</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>                     lane_id read_number   tissue_barcode tissue_type</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> EPICC_C516_Z1_B1_D1                  NA EPICC_C516_Z1_B1      normal</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>                     analyte_name sample_type_name   tumour_id msi_status</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> EPICC_C516_Z1_B1_D1          WGS            blood C516.normal       &lt;NA&gt;</span>
-</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

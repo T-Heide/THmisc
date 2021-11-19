@@ -140,105 +140,17 @@
     <p>A 'CollapsedVCF' object.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'>load_vcf_file</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/system.file.html'>system.file</a></span><span class='op'>(</span><span class='st'>"extdata"</span>, <span class='st'>"platypus.vcf.bgz"</span>, package <span class='op'>=</span> <span class='st'>"THmisc"</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span style='font-weight: bold;'>--------------- Loading a VCF file ---------------
-#&gt; </span>
-#&gt;   File infos:
-#&gt;    - Name: '<span style='font-weight: bold;'>platypus.vcf.bgz</span>'
-#&gt;    - Created: <span style='font-weight: bold;'>2021-09-14 12:26:01</span> 
-#&gt;    - Modified: <span style='font-weight: bold;'>2021-09-14 12:25:58</span> 
-#&gt; 
-#&gt;   Identifying type... 
-#&gt;    =&gt; Type is <span style='color: #00BB00;'>'Platpyus'</span>.
-#&gt; 
-#&gt;   Loading data... 
-#&gt; 
-#&gt;   VCF object contains:
-#&gt;    =&gt; N=<span style='font-weight: bold;'>2</span> variants.
-#&gt;    =&gt; Of these <span style='font-weight: bold;'>2/2</span> <span style='font-weight: bold;'>(100%)</span> marked passing.
-#&gt;    =&gt; On <span style='font-weight: bold;'>1</span> chromosomes
-#&gt; 
-#&gt;   Guessing reference of a vcf file:</div><div class='output co'>#&gt; <span class='message'></span>
-#&gt; <span class='message'>Attaching package: ‘BiocGenerics’</span></div><div class='output co'>#&gt; <span class='message'>The following objects are masked from ‘package:parallel’:</span>
-#&gt; <span class='message'></span>
-#&gt; <span class='message'>    clusterApply, clusterApplyLB, clusterCall, clusterEvalQ,</span>
-#&gt; <span class='message'>    clusterExport, clusterMap, parApply, parCapply, parLapply,</span>
-#&gt; <span class='message'>    parLapplyLB, parRapply, parSapply, parSapplyLB</span></div><div class='output co'>#&gt; <span class='message'>The following objects are masked from ‘package:stats’:</span>
-#&gt; <span class='message'></span>
-#&gt; <span class='message'>    IQR, mad, sd, var, xtabs</span></div><div class='output co'>#&gt; <span class='message'>The following objects are masked from ‘package:base’:</span>
-#&gt; <span class='message'></span>
-#&gt; <span class='message'>    anyDuplicated, append, as.data.frame, basename, cbind, colnames,</span>
-#&gt; <span class='message'>    dirname, do.call, duplicated, eval, evalq, Filter, Find, get, grep,</span>
-#&gt; <span class='message'>    grepl, intersect, is.unsorted, lapply, Map, mapply, match, mget,</span>
-#&gt; <span class='message'>    order, paste, pmax, pmax.int, pmin, pmin.int, Position, rank,</span>
-#&gt; <span class='message'>    rbind, Reduce, rownames, sapply, setdiff, sort, table, tapply,</span>
-#&gt; <span class='message'>    union, unique, unsplit, which.max, which.min</span></div><div class='output co'>#&gt; <span class='message'></span>
-#&gt; <span class='message'>Attaching package: ‘S4Vectors’</span></div><div class='output co'>#&gt; <span class='message'>The following objects are masked from ‘package:base’:</span>
-#&gt; <span class='message'></span>
-#&gt; <span class='message'>    expand.grid, I, unname</span></div><div class='output co'>#&gt; <span class='message'></span>
-#&gt; <span class='message'>Attaching package: ‘Biostrings’</span></div><div class='output co'>#&gt; <span class='message'>The following object is masked from ‘package:base’:</span>
-#&gt; <span class='message'></span>
-#&gt; <span class='message'>    strsplit</span></div><div class='output co'>#&gt; <span class='message'></span>
-#&gt; <span class='message'>Attaching package: ‘BSgenome.Hsapiens.UCSC.hg19’</span></div><div class='output co'>#&gt; <span class='message'>The following object is masked from ‘package:BSgenome.Hsapiens.UCSC.hg38’:</span>
-#&gt; <span class='message'></span>
-#&gt; <span class='message'>    Hsapiens</span></div><div class='output co'>#&gt; <span class='message'></span>
-#&gt; <span class='message'>Attaching package: ‘BSgenome.Hsapiens.UCSC.hg18’</span></div><div class='output co'>#&gt; <span class='message'>The following object is masked from ‘package:BSgenome.Hsapiens.UCSC.hg19’:</span>
-#&gt; <span class='message'></span>
-#&gt; <span class='message'>    Hsapiens</span></div><div class='output co'>#&gt; <span class='message'>The following object is masked from ‘package:BSgenome.Hsapiens.UCSC.hg38’:</span>
-#&gt; <span class='message'></span>
-#&gt; <span class='message'>    Hsapiens</span></div><div class='output co'>#&gt;    =&gt; Testing 3/3 available options.
-#&gt;    =&gt; Found 2/3 perfectly matching.
-#&gt;    =&gt; Reference is '<span style='color: #00BB00;'>BSgenome.Hsapiens.UCSC.hg38</span>'.</div><div class='output co'>#&gt; <span class='message'>Welcome to Bioconductor</span>
-#&gt; <span class='message'></span>
-#&gt; <span class='message'>    Vignettes contain introductory material; view with</span>
-#&gt; <span class='message'>    'browseVignettes()'. To cite Bioconductor, see</span>
-#&gt; <span class='message'>    'citation("Biobase")', and for packages 'citation("pkgname")'.</span></div><div class='output co'>#&gt; 
-#&gt;   Generating annotations...
-#&gt;   
-#&gt;  <span style='font-weight: bold;'>--------------------------------------------------</span> </div><div class='output co'>#&gt; class: CollapsedVCF 
-#&gt; dim: 2 2 
-#&gt; rowRanges(vcf):
-#&gt;   GRanges with 6 metadata columns: paramRangeID, ANNOTATION, REF, ALT, QUAL, FILTER
-#&gt; info(vcf):
-#&gt;   DataFrame with 25 columns: FR, MMLQ, TCR, HP, WE, Source, FS, WS, PP, TR, ...
-#&gt; info(header(vcf)):
-#&gt;                   Number Type    Description                                   
-#&gt;    FR             .      Float   Estimated population frequency of variant     
-#&gt;    MMLQ           1      Float   Median minimum base quality for bases aroun...
-#&gt;    TCR            1      Integer Total reverse strand coverage at this locus   
-#&gt;    HP             1      Integer Homopolymer run length around variant locus   
-#&gt;    WE             1      Integer End position of calling window                
-#&gt;    Source         .      String  Was this variant suggested by Playtypus, As...
-#&gt;    FS             .      Float   Fisher's exact test for strand bias (Phred ...
-#&gt;    WS             1      Integer Starting position of calling window           
-#&gt;    PP             .      Float   Posterior probability (phred scaled) that t...
-#&gt;    TR             .      Integer Total number of reads containing this variant 
-#&gt;    NF             .      Integer Total number of forward reads containing th...
-#&gt;    TCF            1      Integer Total forward strand coverage at this locus   
-#&gt;    NR             .      Integer Total number of reverse reads containing th...
-#&gt;    TC             1      Integer Total coverage at this locus                  
-#&gt;    END            .      Integer End position of reference call block          
-#&gt;    MGOF           .      Integer Worst goodness-of-fit value reported across...
-#&gt;    SbPval         .      Float   Binomial P-value for strand bias test         
-#&gt;    START          .      Integer Start position of reference call block        
-#&gt;    ReadPosRankSum .      Float   Mann-Whitney Rank sum test for difference b...
-#&gt;    MQ             .      Float   Root mean square of mapping qualities of re...
-#&gt;    QD             1      Float   Variant-quality/read-depth for this variant   
-#&gt;    SC             1      String  Genomic sequence 10 bases either side of va...
-#&gt;    BRF            1      Float   Fraction of reads around this variant that ...
-#&gt;    HapScore       .      Integer Haplotype score measuring the number of hap...
-#&gt;    Size           .      Integer Size of reference call block                  
-#&gt; geno(vcf):
-#&gt;   List of length 7: GT, GQ, GOF, NR, GL, NV, VAF
-#&gt; geno(header(vcf)):
-#&gt;        Number Type    Description                                              
-#&gt;    GT  1      String  Unphased genotypes                                       
-#&gt;    GQ  .      Integer Genotype quality as phred score                          
-#&gt;    GOF .      Float   Goodness of fit value                                    
-#&gt;    NR  .      Integer Number of reads covering variant location in this sample 
-#&gt;    GL  .      Float   Genotype log10-likelihoods for AA,AB and BB genotypes,...
-#&gt;    NV  .      Integer Number of reads containing variant in this sample        
-#&gt;    VAF .      Float   Variant allele frequency                                 </div></pre>
+    <pre class="examples"><span class='r-in'><span class='fu'>load_vcf_file</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/system.file.html'>system.file</a></span><span class='op'>(</span><span class='st'>"extdata"</span>, <span class='st'>"platypus.vcf.bgz"</span>, package <span class='op'>=</span> <span class='st'>"THmisc"</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> <span style='font-weight: bold;'>--------------- Loading a VCF file ---------------</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   File infos:</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>    - Name: '<span style='font-weight: bold;'>platypus.vcf.bgz</span>'</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>    - Created: <span style='font-weight: bold;'>2021-11-19 14:57:56</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>    - Modified: <span style='font-weight: bold;'>2021-11-19 14:57:49</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   Identifying type... </span>
+<span class='r-err co'><span class='r-pr'>#&gt;</span> <span class='error'>Error in loadNamespace(x):</span> there is no package called ‘Hmisc’</span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

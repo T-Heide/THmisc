@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get sample annotations from sample barcodes. — annotation_from_barcode • THmisc</title>
+<title>Title — pretty_violin • THmisc</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Get sample annotations from sample barcodes. — annotation_from_barcode" />
-<meta property="og:description" content="Get sample annotations from sample barcodes." />
+<meta property="og:title" content="Title — pretty_violin" />
+<meta property="og:description" content="Title" />
 
 
 
@@ -103,47 +103,40 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get sample annotations from sample barcodes.</h1>
+    <h1>Title</h1>
     
-    <div class="hidden name"><code>annotation_from_barcode.Rd</code></div>
+    <div class="hidden name"><code>pretty_violin.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Get sample annotations from sample barcodes.</p>
+    <p>Title</p>
     </div>
 
-    <pre class="usage"><span class='fu'>annotation_from_barcode</span><span class='op'>(</span><span class='va'>barcodes</span>, extract <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>pretty_violin</span><span class='op'>(</span>color <span class='op'>=</span> <span class='st'>"gray85"</span>, fill <span class='op'>=</span> <span class='st'>"gray10"</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>barcodes</th>
-      <td><p>A character (or factor) vector of sample barcodes.</p></td>
+      <th>color</th>
+      <td></td>
     </tr>
     <tr>
-      <th>extract</th>
-      <td><p>Logical flag if barcodes should be extracted from 'barcodes' (Default: False).</p></td>
+      <th>fill</th>
+      <td></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A data frame with sample annotations, rownames are set if there are no duplicated barcodes.</p>
+    
 
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><span class='r-in'><span class='fu'>annotation_from_barcode</span><span class='op'>(</span><span class='st'>"EPICC_C516_Z1_B1_D1"</span><span class='op'>)</span> <span class='co'># a EPICC sample barcode</span></span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>                     read_barcode lane_barcode iteration_barcode</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> EPICC_C516_Z1_B1_D1           NA           NA                NA</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>                          sample_barcode project patient region region_number</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> EPICC_C516_Z1_B1_D1 EPICC_C516_Z1_B1_D1   EPICC    C516      Z             1</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>                     sample_type sample_number analyte analyte_number iteration</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> EPICC_C516_Z1_B1_D1           B             1       D              1        NA</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>                     lane_id read_number   tissue_barcode tissue_type</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> EPICC_C516_Z1_B1_D1                  NA EPICC_C516_Z1_B1      normal</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>                     analyte_name sample_type_name   tumour_id msi_status</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> EPICC_C516_Z1_B1_D1          WGS            blood C516.normal       &lt;NA&gt;</span>
-</pre>
+
+
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
