@@ -1,7 +1,8 @@
 # THmisc 
 <!-- badges: start -->
-[![R-CMD-check](https://github.com/T-Heide/THmisc/workflows/R-CMD-check/badge.svg)](https://github.com/T-Heide/THmisc/actions)
-[![Codecov test coverage](https://codecov.io/gh/T-Heide/THmisc/branch/main/graph/badge.svg?token=0NTPROVFFS)](https://codecov.io/gh/T-Heide/THmisc)
+[![R-CMD-check](https://github.com/T-Heide/THmisc/workflows/R-CMD-check/badge.svg)](https://github.com/T-Heide/THmisc/actions) 
+[![Codecov test coverage](https://codecov.io/gh/T-Heide/THmisc/branch/main/graph/badge.svg?token=0NTPROVFFS)](https://codecov.io/gh/T-Heide/THmisc) 
+[![CodeFactor](https://www.codefactor.io/repository/github/t-heide/thmisc/badge?s=7efe460e479f53ef55767e8261e7b32664a80a0e)](https://www.codefactor.io/repository/github/t-heide/thmisc)
 <!-- badges: end -->
 
 A Package Containing Personal Methods
