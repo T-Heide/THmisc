@@ -25,7 +25,13 @@
     <loc>/reference/baseRevComplement.html</loc>
   </url>
   <url>
+    <loc>/reference/drop_multiallelic.html</loc>
+  </url>
+  <url>
     <loc>/reference/gene_lists.html</loc>
+  </url>
+  <url>
+    <loc>/reference/get_ab_alleles.html</loc>
   </url>
   <url>
     <loc>/reference/get_cnas.html</loc>
@@ -53,6 +59,12 @@
   </url>
   <url>
     <loc>/reference/index.html</loc>
+  </url>
+  <url>
+    <loc>/reference/insert_ccf.html</loc>
+  </url>
+  <url>
+    <loc>/reference/insert_cnas.html</loc>
   </url>
   <url>
     <loc>/reference/insert_vaf.html</loc>
