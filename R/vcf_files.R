@@ -556,7 +556,7 @@ load_vcf_file = function(f, ..., verbose=TRUE, annot=TRUE) {
   checkmate::reportAssertions(cl)
 
   # create index if it does not exist
-  if (!file.exists(paste0(f, ".tbi"))) {
+  if (!file.exists(paste0(f, ".tbi")) & grepl("[.]gz$", f)) {
     VariantAnnotation::indexVcf(f)
   }
   
