@@ -180,9 +180,9 @@ load_mutect2_vcf = function(f) {
   
   # load and modify platpyus vcf file
   d = VariantAnnotation::readVcf(f) %>%
-    THmisc:::drop_multiallelic() %>%
-    THmisc:::insert_vaf()
-  
+    split_multiallelic() %>%
+    insert_vaf()
+
   return(d)
 }
 
@@ -234,17 +234,29 @@ split_multiallelic = function(d) {
     
     y
   }
-  
-  .split = function(d_cur, i) {
-    
+
+  .split = function(d_cur, i, csq_parser) {
+
     # info elements:
-    for (el in c("FR","PP","TR","NF","NR","FS","AS_UNIQ_ALT_READ_COUNT","MPOS","NALOD","POPAF","TLOD")) {
+    el_mult_platypus = c("FR","FS","PP","TR","NF","NR","END")
+    el_mult_mutect2 = c("AS_FilterStatus","AS_UNIQ_ALT_READ_COUNT","MPOS","NALOD","POPAF","TLOD")
+    for (el in c(el_mult_platypus, el_mult_mutect2)) {
       if (el %in% names(VariantAnnotation::info(d_cur))){
-        VariantAnnotation::info(d_cur)[,el] = 
+        VariantAnnotation::info(d_cur)[,el] =
           S4Vectors::endoapply(VariantAnnotation::info(d_cur)[,el],  "[", i)
       }
     }
-    
+
+    # info elements per read:
+    el_mult_mutect2_r = c("MBQ","MFRL","MMQ","RPA")
+    for (el in c(el_mult_mutect2_r)) {
+      if (el %in% names(VariantAnnotation::info(d_cur))){
+        VariantAnnotation::info(d_cur)[,el] =
+          S4Vectors::endoapply(VariantAnnotation::info(d_cur)[,el],"[",c(1,1+i))
+      }
+    }
+
+
     # csq string:
     if ("CSQ" %in% names(VariantAnnotation::info(d_cur))) {
       
@@ -279,33 +291,47 @@ split_multiallelic = function(d) {
       }
       
       # keep the select allele from the csq elements
-      VariantAnnotation::info(d_cur)$CSQ = 
-        mapply("[", csqs, lapply(al_nums, "==", i), SIMPLIFY=0) %>% 
-        CharacterList()
-      
+      VariantAnnotation::info(d_cur)$CSQ =
+        mapply("[", csqs, lapply(al_nums, "==", i), SIMPLIFY=0) %>%
+        IRanges::CharacterList()
+
     }
     
     
     # gt string:
-    VariantAnnotation::geno(d_cur)$GT = 
-      VariantAnnotation::geno(d_cur)$GT %>% 
-      gsub(pattern = as.character(i), replacement = "X") %>% 
-      gsub(pattern = "[1-9]", replacement = "0") %>% 
-      gsub(pattern = "X", replacement = "1")
-    
-    
-    for (l in seq_len(NCOL(d_cur))){
-      VariantAnnotation::geno(d_cur)$NR[,l] = 
-        S4Vectors::endoapply(VariantAnnotation::geno(d_cur)$NR[,l],  "[", i)
-      
-      VariantAnnotation::geno(d_cur)$NV[,l] = 
-        S4Vectors::endoapply(VariantAnnotation::geno(d_cur)$NV[,l],  "[", i)
+    if ("GT" %in%  names(VariantAnnotation::geno(d_cur))) {
+      VariantAnnotation::geno(d_cur)$GT =
+        VariantAnnotation::geno(d_cur)$GT %>%
+        gsub(pattern = as.character(i), replacement = "X") %>%
+        gsub(pattern = "[1-9]", replacement = "0") %>%
+        gsub(pattern = "X", replacement = "1")
     }
-    
-    VariantAnnotation::alt(d_cur) = # alt reads
-      S4Vectors::lapply(VariantAnnotation::alt(d_cur),  "[", i) %>% 
-      Biostrings::DNAStringSetList() 
-    
+
+
+    # geno elements:
+    for (el in c("NR","NV","AF")) { # only alt
+      for (l in seq_len(NCOL(d_cur))){
+        if (el %in% names(VariantAnnotation::geno(d_cur))) {
+          VariantAnnotation::geno(d_cur)[[el]][,l] =
+            S4Vectors::endoapply(VariantAnnotation::geno(d_cur)[[el]][,l],"[",i)
+        }
+      }
+    }
+
+    for (el in c("AD","F1R2","F2R1")) { # ref and alt
+      for (l in seq_len(NCOL(d_cur))){
+        if (el %in% names(VariantAnnotation::geno(d_cur))) {
+          VariantAnnotation::geno(d_cur)[[el]][,l] =
+            S4Vectors::endoapply(VariantAnnotation::geno(d_cur)[[el]][,l],"[",c(1,1+i))
+        }
+      }
+    }
+
+    # alt string
+    VariantAnnotation::alt(d_cur) =
+      S4Vectors::lapply(VariantAnnotation::alt(d_cur),  "[", i) %>%
+      Biostrings::DNAStringSetList()
+
     d_cur
   }
   
@@ -321,14 +347,22 @@ split_multiallelic = function(d) {
   if (n_sites == 0) 
     return(d_ret)
 
-  # parse mutli-allelic sites  
+  # elements to drop if not all biallelic
+  for (el in c("PL")) {
+    if (el %in% names(VariantAnnotation::geno(d))) {
+      VariantAnnotation::geno(d_ret)[[el]] = NULL
+      VariantAnnotation::geno(d)[[el]] = NULL
+    }
+  }
+
+  # parse mutli-allelic sites
   d_add = NULL
   csq_parser = get_csq_parser(d)
   max_n_elements = max(n_elements)
   for (i in seq(1, max_n_elements)) {
     idx = n_elements > 1 & n_elements >= i
     if (sum(idx) == 0) next()
-    d_cur = .split(d[idx,], i)
+    d_cur = .split(d[idx,], i, csq_parser)
     if (is.null(d_add)) {
       d_add = d_cur
     } else {
