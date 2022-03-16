@@ -634,13 +634,11 @@ add_annot_wrapper = function(data, verbose=TRUE) {
 
   conseq_order = c("frameshift","nonsense","nonsynonymous","synonymous","not translated")
 
-  if (FALSE) {
+  if ("CSQ" %in% colnames(VariantAnnotation::info(data))) {
 
     ##=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     ##  VCF contains VEP annotations    =
     ##=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
-    stop()
 
   } else {
 
