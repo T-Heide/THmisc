@@ -653,8 +653,7 @@ add_annot_wrapper = function(data, verbose=TRUE) {
     rg = guess_reference_genome(data, verbose = verbose)
     if (!is.na(rg)) {
       txdb_n = paste0(gsub("BSgenome[.]", "TxDb.", rg), ".knownGene")
-      txdb_a = suppressWarnings(require(txdb_n, character.only = TRUE, quietly =
-                                          TRUE))
+      txdb_a = suppressWarnings(require(txdb_n, character.only = TRUE, quietly = TRUE))
       if (!txdb_a) {
         cat(crayon::red("Missing TxDb package '", "'", sep = ""))
         cat("Please install and try again. Try BiocManager::install('", txdb_n, "')'.\n", sep = "")
@@ -672,7 +671,7 @@ add_annot_wrapper = function(data, verbose=TRUE) {
       # print everything missed in the consequence lists
       if (!all(annot$CONSEQUENCE %in% conseq_order)) {
         m_conseq = unique(annot$CONSEQUENCE[!annot$CONSEQUENCE %in% conseq_order])
-        stop("Unknown CONSEQUENCES: ", paste0(m_conseq, collapse = ", "))
+        stop("Unknown CONSEQUENCES (please update code): ", paste0(m_conseq, collapse = ", "))
       }
 
       gene_ids_to_name =
@@ -687,7 +686,7 @@ add_annot_wrapper = function(data, verbose=TRUE) {
 
 
       .get_annot_string = function(mid) {
-        annot_c = annot[names(annot) == mid, ]
+        annot_c = annot[names(annot) == mid, ,drop=FALSE]
 
         if (NROW(annot_c) == 0) return(NA)
 
@@ -697,13 +696,13 @@ add_annot_wrapper = function(data, verbose=TRUE) {
           } else {
             # keep highest impact
             prior = match(annot_c$CONSEQUENCE, conseq_order)
-            annot_c = annot_c[prior == min(prior), ]
+            annot_c = annot_c[prior == min(prior), ,drop=FALSE]
           }
         }
 
         if (NROW(annot_c) != 1) {
           warning("Keeping random annotation, need list of cannoical transcripts!\n")
-          annot_c = annot_c[1, ]
+          annot_c = annot_c[1, ,drop=FALSE]
         }
 
         stopifnot(length(unique(annot_c$REF)) == 1)
@@ -734,6 +733,21 @@ add_annot_wrapper = function(data, verbose=TRUE) {
       }  else {
         annot_strings = sapply(rownames(data), .get_annot_string)
       }
+
+
+      # add annotation of new column to header
+      new_el =
+        DataFrame(
+          Number = 1,
+          Type = "Character",
+          Description = "Mutation annotation",
+          row.names = "ANNOTATION"
+        )
+
+      VariantAnnotation::info(VariantAnnotation::header(data)) =
+        rbind(VariantAnnotation::info(VariantAnnotation::header(data)), new_el)
+
+      # add mutation annotation to the mutation data
       SummarizedExperiment::rowRanges(data)$ANNOTATION = annot_strings[rownames(data)]
 
     } else {
