@@ -203,13 +203,23 @@ get_csq_parser = function(d) {
           stop("Need to pass e and f.\n")
         }
       }
-      
+
+      # if e is a charcter with '|' in each element
+      # assume that this is the full csq annoation string
       if (is.character(e)) {
-        e = strsplit(e, split="[|]")
+        if (all(grepl("[|]", e))) {
+          e = strsplit(e, split="[|]")
+        }
       }
-      
+
       idx = match(f, l)
-      res = sapply(e, function(e_) e_[idx])
+
+      if (is.character(e)) {
+        res = e[idx]
+      } else {
+        res = sapply(e, function(e_) e_[idx])
+      }
+
       return(res)
     }
   })})(csq_format)
