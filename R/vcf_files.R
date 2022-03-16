@@ -604,6 +604,13 @@ load_vcf_file = function(f, ..., verbose=TRUE, annot=TRUE) {
     stop("Unknown VCF file type...\n")
   }
 
+
+  # drop unused seqleves from data
+  seqs_keep = as.character(unique(BSgenome::seqnames(data)))
+  GenomeInfoDb::seqlevels(data) = seqs_keep
+  GenomeInfoDb::genome(data) = GenomeInfoDb::genome(data)[seqs_keep]
+
+
   # report content of vcf file:
   if (verbose) {
     cat("\n")
@@ -625,7 +632,7 @@ load_vcf_file = function(f, ..., verbose=TRUE, annot=TRUE) {
 
 add_annot_wrapper = function(data, verbose=TRUE) {
 
-  conseq_order = c("frameshift","nonsense","nonsynonymous","synonymous")
+  conseq_order = c("frameshift","nonsense","nonsynonymous","synonymous","not translated")
 
   if (FALSE) {
 
