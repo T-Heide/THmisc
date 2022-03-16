@@ -484,7 +484,7 @@ guess_reference_genome = function(d, verbose=TRUE) {
       )
     )
 
-  genomes_avail = lapply(genomes[avail], function(x) get(x))
+  genomes_avail = lapply(genomes[avail], function(x) get(x, envir=asNamespace(x)))
 
   if (length(genomes_avail) == 0) {
     if (verbose) {
@@ -502,11 +502,15 @@ guess_reference_genome = function(d, verbose=TRUE) {
 
   # check which genomes match:
   rn = SummarizedExperiment::rowRanges(d)
+  rn_ = GenomicRanges::GRanges(
+    seqnames = as.character(GenomicRanges::seqnames(rn)),
+    ranges = IRanges::IRanges(start(rn), end(rn))
+  )
 
   genomes_matches =
     sapply(genomes_avail, function(g) {
       suppressMessages(suppressWarnings(tryCatch(
-        all(as.character(BSgenome::getSeq(g, rn)) == rn$REF),
+        all(as.character(BSgenome::getSeq(g, rn_)) == as.character(rn$REF)),
         error=function(x) return(FALSE)
       )))
     })
