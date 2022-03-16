@@ -79,6 +79,9 @@
     <loc>/reference/lift_hg38_to_hg19.html</loc>
   </url>
   <url>
+    <loc>/reference/load_mutect2_vcf.html</loc>
+  </url>
+  <url>
     <loc>/reference/load_platypus_vcf.html</loc>
   </url>
   <url>
