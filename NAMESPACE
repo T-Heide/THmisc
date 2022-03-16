@@ -3,6 +3,7 @@
 export(annotation_from_barcode)
 export(annotation_from_barcode_epicc)
 export(annotation_from_barcode_tcga)
+export(get_ab_alleles)
 export(drop_multiallelic)
 export(get_cnas)
 export(get_gene_pos)
