@@ -71,6 +71,78 @@ insert_vaf = function(d) {
 }
 
 
+
+#' Add an additional CNA and AB entries to a 'CollapsedVCF' object.
+#'
+#' @param mutation_data A 'CollapsedVCF' object
+#' @param cna_segments A list of CNA data that can be parsed by the 'get_cnas' function
+#'
+#' @return A 'CollapsedVCF' object with the CNA and AB added to the genotype information
+#' @export
+insert_cnas = function(mutation_data, cna_segments) {
+
+  # Add CNA annotation to the header:
+  vaf_header =
+    data.frame(
+      Number=c(".","."),
+      Type=c("Integer","String"),
+      Description=c("CN","AB")
+    )
+
+  old_header = VariantAnnotation::geno(VariantAnnotation::header(mutation_data))
+  new_header = rbind(old_header, vaf_header)
+  rownames(new_header) = c(rownames(old_header), c("CN","AB"))
+  VariantAnnotation::geno(VariantAnnotation::header(mutation_data)) = new_header
+
+  # Insert CNA data:
+  VariantAnnotation::geno(mutation_data)$CN =
+    get_cnas(mutation_data, cna_segments)
+
+  VariantAnnotation::geno(mutation_data)$AB =
+    get_ab_alleles(mutation_data, cna_segments)
+
+  return(mutation_data)
+}
+
+#' Adds an additional CCF entry to a 'CollapsedVCF' object.
+#'
+#' @param mutation_data  A 'CollapsedVCF' object
+#' @param purities Ordered purity estimates of all samples in the VCF.
+#'
+#' @return A 'CollapsedVCF' object with the CCF added to the genotype information
+#' @export
+insert_ccf = function(mutation_data, purities) {
+
+  stopifnot("VAF" %in% names(VariantAnnotation::geno(mutation_data)))
+  stopifnot("CN" %in% names(VariantAnnotation::geno(mutation_data)))
+  stopifnot(NCOL(mutation_data) == length(purities))
+
+  # Add CNA annotation to the header:
+  added_header = data.frame(Number=".", Type="Float", Description="CCF")
+  old_header = VariantAnnotation::geno(VariantAnnotation::header(mutation_data))
+  new_header = rbind(old_header, added_header)
+  rownames(new_header) = c(rownames(old_header), "CCF")
+  VariantAnnotation::geno(VariantAnnotation::header(mutation_data)) = new_header
+
+
+  # Insert CCF data:
+  VariantAnnotation::geno(mutation_data)$CCF =
+    VariantAnnotation::geno(mutation_data)$VAF
+
+  for (i in seq_len(NCOL(mutation_data))) {
+    vaf = c(unlist(VariantAnnotation::geno(mutation_data)$VAF[,i]))
+    cn = c(VariantAnnotation::geno(mutation_data)$CN[,i])
+    p = purities[i]
+    m = 1 # mutated_alleles
+
+    VariantAnnotation::geno(mutation_data)$CCF[,i] = vaf*(2*(1-p)+cn*p)/(p*m)
+  }
+
+  return(mutation_data)
+}
+
+
+
 #' Internal wrapper function to load a Platypus vcf into a format usable for common purposes
 #'
 #' @param f A Platypus VCF file
