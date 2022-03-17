@@ -1082,6 +1082,65 @@ vcf_to_data_frame = function(d, relevant_consequences=c("high","moderate"), anno
 }
 
 
+get_annotation_from_csq = function(d) {
+
+  # parse the variant annotations:
+  get_feature = get_csq_parser(d)
+  annot_csq = lapply(VariantAnnotation::info(d)$CSQ, strsplit, split="[|]")
+
+
+  # find relevant annotations:
+  annot_csq_relevant = sapply(annot_csq, function(a) {
+
+    conseq = strsplit(sapply(a, get_feature, "Consequence"), "&")
+
+    is_trans = sapply(a, get_feature, "Feature_type") == "Transcript"
+    is_canon = sapply(a, get_feature, "Feature") %in% canonical_list$transcript
+    is_relevant = sapply(lapply(conseq, "%in%", relevant_consequences), any)
+
+    wh_annotate = is_trans & is_canon & is_relevant
+    trim_canocial = TRUE
+    if (sum(wh_annotate) == 0) {
+      wh_annotate = is_trans & is_relevant
+      trim_canocial = FALSE
+      if (sum(wh_annotate) == 0) {
+        wh_annotate = is_relevant
+      }
+      if (!annotate_all & any(wh_annotate)){
+        wh_annotate = which(wh_annotate)[1]
+      }
+    }
+
+    annots_genes =
+      paste(sapply(a[wh_annotate], function(b) {
+        gene = get_feature(b, "SYMBOL")
+        conseq = replace_aa_codes(get_feature(b, "HGVSp"))
+        if (conseq == "")
+          conseq = get_feature(b, "HGVSc")
+        if (trim_canocial)
+          conseq = strsplit(conseq , ":")[[1]][2]
+        conseq = gsub("%3", "", conseq)
+        paste0(gene, " (", conseq, ")")
+      }), collapse="; ")
+
+    if (length(annots_genes) == 0) {
+      return("")
+    } else {
+      return(annots_genes)
+    }
+  })
+
+
+}
+
+replace_aa_codes = function(v) {
+  p = c("Ter", seqinr::aaa())
+  r = c("*", seqinr::a())
+  for (i in seq_along(p))
+    v = gsub(p[i], r[i], v)
+  return(v)
+}
+
 #' Plot a histogram of mutations contained in a VCF across CN states.
 #'
 #' @param d Object of class 'CollapsedVCF'
