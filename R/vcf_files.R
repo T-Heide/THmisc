@@ -1082,3 +1082,839 @@ vcf_to_data_frame = function(d, relevant_consequences=c("high","moderate"), anno
 }
 
 
+#' Plot a histogram of mutations contained in a VCF across CN states.
+#'
+#' @param d Object of class 'CollapsedVCF'
+#' @param what String containing 'VAF' or 'CCF' that defines what to plot. (Default: 'VAF')
+#' @param purity A named numeric vector of sample purities. Used to calculate expected cluster positions and to create labels. (Default: NULL)
+#' @param ploidy  A named numeric vector of sample ploidies. Used to calculate expected cluster positions and to create labels. (Default: NULL)
+#'
+#' @return A ggplot object containing mutation histograms
+#' @export
+#' @import ggplot2
+#'
+plot_vaf_distribution = function(d, what="VAF", purity=NULL, ploidy=NULL) {
+
+  checkmate::assertDataFrame(d)
+  checkmate::assertTRUE(all(c("mutation","sample","CN","VAF","CCF","AB","type") %in% colnames(d)))
+  checkmate::assertCharacter(what, max.len = 1, min.len = 1)
+  checkmate::assertChoice(what, c("VAF","CCF"))
+
+  checkmate::assertNumeric(purity, null.ok = TRUE, names = "unique")
+  checkmate::assertNumeric(ploidy, null.ok = TRUE, names = "unique")
+
+  # plot data for each sample
+  d$value = d[,what]
+  plot_list = list()
+
+  for (csample in unique(as.character(d$sample))) {
+
+    title = csample
+    subtitle = ""
+
+    if (csample %in% names(purity)) {
+      subtitle = paste0(subtitle, "Purity: ", round(purity[csample] * 100), "%")
+    }
+
+    if (csample %in% names(ploidy)) {
+      if (subtitle != "") subtitle = paste0(subtitle, ", ")
+      subtitle = paste0(subtitle, "Ploidy: ", round(ploidy[csample]))
+    }
+
+
+    cn_labels = labeller(
+      CN = function(s) {
+        s = if_else(as.numeric(s) > 5, "CN > 4", paste("CN =", as.character(s)))
+      }
+    )
+
+    ab_labels = labeller(
+      AB = function(string) {
+        paste0("CN: ", as.character(string), "")
+      }
+    )
+
+
+    data_plot=
+      data.frame(d) %>%
+      dplyr::filter(sample == csample) %>%
+      dplyr::filter(value > 0) %>%
+      mutate(AB=factor(AB, levels(AB)[nchar(levels(AB)) <= 4], ordered=TRUE)) %>%
+      dplyr::filter(!is.na(AB))
+
+
+    if (NROW(data_plot) == 0) {
+      next()
+    }
+
+    mutations_per_cn =
+      table(data_plot$AB) %>%
+      reshape2::melt() %>%
+      magrittr::set_colnames(c("AB","N")) %>%
+      mutate(N=paste0("N = ", N))
+
+
+    if (csample %in% names(purity)) {
+
+      ab_states =
+        mutations_per_cn %>%
+        dplyr::filter(N != "N = 0") %>%
+        dplyr::select(AB) %>% unlist()
+
+
+      .get_peak_pos = function(ab) {
+
+        p = purity[csample]
+        ab = as.character(ab)
+        cn = nchar(ab)
+        n_states = sum(strsplit(ab, "")[[1]] == "A")
+        am = seq_len(n_states)
+
+        if (what == "VAF") {
+          data.frame(
+            AB = rep(ab, n_states),
+            value = am * p / (2 * (1 - p) + cn * p),
+            af = am,
+            row.names = NULL
+          )
+        } else if (what == "CCF") {
+          data.frame(
+            AB = rep(ab, n_states),
+            value = am,
+            af = am,
+            row.names = NULL
+          )
+        } else {
+          NULL
+        }
+      }
+
+      peak_position_per_cn = do.call(rbind, lapply(ab_states, .get_peak_pos))
+    } else {
+      peak_position_per_cn = NULL
+    }
+
+    plot =
+      data_plot %>%
+      ggplot(aes(x=value)) +
+      geom_histogram(aes(fill=type), bins=50,  alpha=1.0) +
+      geom_vline(data=peak_position_per_cn, aes(xintercept=value, group=af), linetype=2, color="gray30") +
+      geom_text(data=mutations_per_cn, aes(label=N, x=1, y=Inf), hjust=1, vjust=2, color="black") +
+      facet_wrap(~AB, scales="free", drop=FALSE, labeller=ab_labels) +
+      xlim(0, 1) +
+      theme(plot.subtitle=element_text(hjust=0.5)) +
+      ggtitle(title, subtitle) +
+      scale_fill_brewer(palette="Set1", drop=FALSE) +
+      theme(panel.spacing = unit(1, "lines")) +
+      xlab(what) +
+      ylab("Number") +
+      labs(fill="Mutation type")
+
+
+    plot_list[[csample]] = ggplotGrob(plot)
+
+  }
+
+  return(plot_list)
+}
+
+
+#' Plot CN states of somatic sides across samples.
+#'
+#' @param d Object of class 'CollapsedVCF'
+#' @param min_freq Minimum relative size to include a group of CN states. (Default: 0.01)
+#'
+#' @return A ggplot object containing mutation histograms
+#' @export
+#' @import ggplot2
+#'
+plot_cn_states_across_samples = function(data, min_freq = 0.01) {
+
+  cn_stat_mat = with(data, tapply(as.character(AB), list(mutation, sample), c))
+
+  # drop samples with no CN infos
+  wh_drop = apply(is.na(cn_stat_mat), 2, all)
+  cn_stat_mat = cn_stat_mat[,!wh_drop]
+
+  # convert to string
+  cn_stats_v = apply(cn_stat_mat, 1, paste0, collapse=" ")
+  cn_stats_tab = table(cn_stats_v)
+
+  # summary data frame
+  cn_states =
+    data.frame(
+      cn_state = names(cn_stats_tab),
+      freq = as.numeric(cn_stats_tab / sum(cn_stats_tab)),
+      count = as.numeric(cn_stats_tab)
+    )
+
+  plot =
+    cn_states %>%
+    dplyr::filter(freq >= min_freq) %>%
+    ggplot(aes(y=cn_state, x="N", fill=freq, label=count)) +
+    geom_tile() +
+    geom_text() +
+    scale_fill_distiller(palette=8, direction=1) +
+    xlab("") +
+    ylab("CN state")
+
+  return(plot)
+}
+
+
+#' Plot a heatmap showing VAF of specific mutations across samples.
+#'
+#' @param d Data frame containing the data to plot.
+#' Has to include the columns 'sample', 'NV', 'NR', 'VAF', 'gene', 'variant'.
+#' Can optionally include the column 'label' which is used to label tiles (defaults to 'NV'/'NR').
+#' Can optionally include the column 'group' which is used to split samples into tiles.
+#' @param max_label_width A integer defining the maxmimum length of labels. Labels longer than this are trimmed.
+#'
+#' @rdname plot_driver_vaf_heatmap
+#' @return
+#' @export
+#' @import ggplot2
+#'
+plot_driver_vaf_heatmap = function(d, max_label_width = 50) {
+
+  checkmate::assertDataFrame(d)
+  checkmate::assertTRUE(all(c("sample","NV","NR","VAF","gene","variant") %in% colnames(d)))
+
+  if ("group" %in% colnames(d)) {
+    .all_equal = function(x) length(unique(x)) <= 1
+    unique_groups_per_sample = all(sapply(split(d$group, d$sample), .all_equal))
+    checkmate::assertTRUE(unique_groups_per_sample)
+  }
+
+  if (NROW(d) == 0)
+    return(NULL)
+
+  #---------------------------------------------
+
+  gene_spl = lapply(strsplit(d$gene, "[&,; ]"), function(x) unique(x[x!=""]))
+  d$gene = sapply(gene_spl, paste0, collapse=", ")
+
+  #---------------------------------------------
+
+  # Trim excessively long labels
+  d$variant = as.character(d$variant)
+  char_length = nchar(d$variant)
+  wh_to_long = char_length > max_label_width
+  if (any(wh_to_long)) {
+    trimmed_label = strtrim(d$variant[wh_to_long], width = max_label_width - 4)
+    d$variant[wh_to_long] = paste(trimmed_label, "...")
+  }
+
+  #---------------------------------------------
+
+  # Make fixed width axis labels (pad with spaces)
+  char_length = nchar(d$variant)
+  if (!any(char_length == max_label_width)) {
+    wh_max = char_length == max(char_length)
+    append = paste0(rep(" ", max_label_width - max(char_length)), collapse = "")
+    d$variant[wh_max] = paste0(append, d$variant[wh_max])
+  }
+
+  #---------------------------------------------
+
+  if (!"label" %in% colnames(d)) {
+    d$label = paste0(d$NV, "/", d$NR)
+  }
+
+  #---------------------------------------------
+
+  plot_of_drivers =
+    ggplot(d, aes(x = sample, y = variant, fill = VAF, label=label)) +
+    cowplot::theme_cowplot() +
+    geom_bin2d(size = 0.2, color = "gray20") +
+    geom_text(size = 2.5, alpha = 0.8) +
+    facet_grid(gene ~ ., scales = "free", space = "free") +
+    scale_fill_gradient(low = "white", high = "red", limits = c(0, 1)) +
+    background_grid() +
+    theme(strip.text.y = element_text(angle = 0)) +
+    theme(axis.title.y = element_blank()) +
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5)) +
+    xlab("Sample") +
+    ylab("Mutation")
+
+  # optionally split panel by column 'group'
+  if ("group" %in% colnames(d)) {
+    plot_of_drivers = plot_of_drivers +
+      facet_grid(gene ~ group, scales = "free", space = "free")
+  }
+
+  return(plot_of_drivers)
+}
+
+
+
+#' Wrapper around plot_driver_vaf_heatmap function to save the image with resonable dimensions
+#'
+#' @param d Data frame containing the data to plot.
+#' @param out_file Name of the image file to create.
+#' @param genes A character vector of genes to subset data to. (Default: NULL)
+#' @param ... Arguments passed to plot_driver_vaf_heatmap. See ?plot_driver_vaf_heatmap.
+#'
+#' @rdname plot_driver_vaf_heatmap
+#' @return
+#' @export
+#'
+save_driver_vaf_heatmap = function(d, out_file, genes=NULL, ...) {
+
+  checkmate::assertDataFrame(d)
+  checkmate::assertTRUE(all(c("sample","NV","NR","VAF","gene","variant") %in% colnames(d)))
+  checkmate::assertCharacter(genes, null.ok = TRUE)
+
+  if (!is.null(genes)) {
+    spl = strsplit(d$gene, "[&,; ]")
+    keep = sapply(spl, function(x) isTRUE(any(unlist(x) %in% genes)))
+    d = d[keep,]
+  }
+
+  plot = plot_driver_vaf_heatmap(d, ...)
+
+  # find good width
+  n_sample_sets = length(unique(plot$data$group))
+  n_samples = length(unique(plot$data$sample))
+  lab_width = max(nchar(plot$data$variant))
+  width =  0.13 * (n_sample_sets - 1) + 0.15 * n_samples + 0.127 * lab_width + 1.95
+
+  # find good height
+  n_genes = length(unique(plot$data$gene))
+  n_mutations = length(unique(paste0(plot$data$variant, "...", plot$data$gene)))
+  height = 0.13 * (n_genes - 1) + 0.17 * n_mutations + 0.27 + 2.43
+
+  dir.create(dirname(out_file), showWarnings = FALSE, recursive = TRUE)
+  ggsave(out_file, plot, width=width, height=height, limitsize=FALSE)
+
+  invisible(plot)
+}
+
+
+#' Create a plot showing if a gene is mutated in a given sample
+#'
+#' @param d Data frame containing the data to plot.
+#' @param crit_value Critical value of column 'use' to consider a sample to be mutated (i.e., d[,use] > crit_value)
+#' @param genes # Genes to include in the plot.
+#' @param use Column of the data frame containing information if a gene is mutated. 
+#' @param order_alphabetic Flag indicating if rows and columns should be ordered alphabetically.
+#' @param gene_to_gr # Named character vector or labeller function used to convert gene ids to a group label.
+#' @param keep_all_genes # Flag indicating if genes unmutaed in all samples should be included in the plot.
+#' @param xlab # Label for the x-axis (e.g., the genes)
+#'
+#' @return
+#' @export
+#'
+plot_gene_mut_heatmap = function(d, crit_value=0.1, genes=NULL, use="CCF", order_alphabetic=FALSE, gene_to_gr=NULL, keep_all_genes=FALSE, xlab="") {
+
+  checkmate::assertDataFrame(d)
+  checkmate::assertTRUE(all(c("patient","sample",use,"gene","variant") %in% colnames(d)))
+  checkmate::assertCharacter(genes, null.ok = TRUE)
+  checkmate::assertNumeric(d[,use], null.ok = FALSE, any.missing = FALSE)
+  checkmate::assertFlag(order_alphabetic)
+
+  #---------------------------------------------
+
+  if (is.character(gene_to_gr)) {
+    gene_to_gr = (function(m) {force(m); return(function(x) m[x])})(gene_to_gr)
+  } else {
+    if (!is.function(gene_to_gr) & !is.null(gene_to_gr)) {
+      stop("'gene_to_gr' should be a map or labeller function.")
+    }
+  }
+
+  #---------------------------------------------
+
+  if (!"patient_gr" %in% colnames(d)) {
+    d$patient_gr = ""
+  }
+
+  #---------------------------------------------
+
+  gene_spl = lapply(strsplit(d$gene, "[&,; ]"), function(x) unique(x[x!=""]))
+  d$gene = sapply(gene_spl, paste0, collapse=", ")
+  d$value = d[,use]
+  d$patient_gr = factor(d$patient_gr)
+
+  #---------------------------------------------
+
+  if (!is.null(genes)) { # subset to specific genes
+    spl = strsplit(d$gene, "[&,; ]")
+    keep = sapply(spl, function(x) isTRUE(any(unlist(x) %in% genes)))
+    d = d[keep,]
+
+    if (keep_all_genes) {
+      d$gene = factor(d$gene, unique(genes, unique(d$gene)), ordered = TRUE)
+    }
+  }
+
+  #---------------------------------------------
+
+  if (NROW(d) == 0)
+    return(NULL)
+
+  #---------------------------------------------
+
+  # pad patient ids with spaces depending on tissue
+  tissues = unique(d$patient_gr)
+  mt = match(d$patient_gr, tissues)
+  pad = sapply(mt, function(n) paste0(rep(" ", n-1), collapse = ""))
+  d$patient = paste0(pad, d$patient)
+
+  #---------------------------------------------
+
+  # combinations to tabulate
+  genes = if (is.factor(d$gene)) levels(d$gene) else unique(d$gene)
+  patients = unique(d$patient)
+  tissues = unique(d$patient_gr)
+  samples_per_set = lapply(split(as.character(d$sample), list(d$patient, d$patient_gr)), unique)
+  tissues_per_pat = lapply(split(as.character(d$patient_gr), d$patient), unique)
+
+  # data frame for tabulation
+  tab_data = expand.grid(gene=genes, patient=patients, tissue=tissues, stringsAsFactors = FALSE)
+  for (i in seq_along(tissues_per_pat)) { # drop non existing tissue patient combinations
+    pat = names(tissues_per_pat)[i]
+    val_t = tissues_per_pat[[i]]
+    wh_drop = tab_data$patient == pat & !tab_data$tissue %in% val_t
+    tab_data = tab_data[!wh_drop,]
+  }
+  tab_data$fraction_mutated = NA
+  tab_data$mean_value = NA
+  tab_data$status = NA
+  tab_data$type = NA
+
+  for (i in seq_len(NROW(tab_data))) {
+
+    # get view of input data
+    wh_c = d$gene == as.character(tab_data$gene[i]) &
+      d$patient == as.character(tab_data$patient[i]) &
+      d$patient_gr == as.character(tab_data$tissue[i])
+
+    d_c = d[wh_c,]
+    if (NROW(d_c) == 0) next()
+
+    # mapper from variant to mutation
+    wh_ndup = !duplicated(d_c$mutation)
+    mut_to_var = d_c$variant[wh_ndup] %>%
+      make.unique() %>%
+      magrittr::set_names(d_c$mutation[wh_ndup])
+
+    # expand variant data to matrix
+    grouping = list(as.character(d_c$sample), as.character(d_c$mutation))
+    value_matrix = tapply(d_c$value, grouping, unique)
+
+    # assert that all samples are present
+    exp_smp = with(tab_data[i, ], samples_per_set[[paste0(patient, ".", tissue)]])
+    stopifnot(all(exp_smp %in% rownames(value_matrix)))
+
+    # calculate values to tabulate
+    frac_mut = apply(value_matrix > crit_value, 2, mean)
+    mean_value = apply(value_matrix, 2, mean)
+
+    # other propeties in order of above table
+    mt = match(gsub("[.][0-9]+$", "", colnames(value_matrix)), d_c$mutation)
+    types = d_c$type[mt]
+
+    # selection of most relevant mutation
+    wh_use = frac_mut == max(frac_mut)
+    if (sum(wh_use) > 1 & is.ordered(types)) {
+        wh_use = wh_use & max(types[wh_use], na.rm=TRUE) == types
+    }
+
+    if (sum(wh_use) > 1) {
+      wh_use = wh_use & mean_value == max(mean_value[wh_use])
+    }
+
+    if (sum(wh_use) > 1) { # take care not to call sample if only one is selected
+      wh_use = sample(which(wh_use), size = 1)
+    }
+
+    # save data
+    tab_data$fraction_mutated[i] = frac_mut[wh_use]
+    tab_data$mean_value[i] = mean_value[wh_use]
+    tab_data$status[i] = if_else(frac_mut[wh_use] == 1, "clonal", "sub-clonal")
+    tab_data$type[i] = as.character(types[wh_use])
+  }
+
+  if (!keep_all_genes) {
+    wh = tab_data$gene %in% tab_data$gene[which(tab_data$fraction_mutated > 0)]
+    tab_data = tab_data[wh,]
+  }
+
+  #---------------------------------------------
+  .is_mut = function(x) if (all(is.na(x))) return(0) else return(max(x))
+  mut_mat = with(tab_data, tapply(fraction_mutated, list(patient, gene), .is_mut))
+
+  if (order_alphabetic) {
+    order_genes = sort(as.character(tab_data$gene), decreasing = TRUE)
+    order_pat = sort(as.character(tab_data$patient), decreasing = FALSE)
+  } else {
+    order_genes = names(sort(apply(mut_mat>0, 2, sum), decreasing = TRUE))
+
+    ord_list = split(t(mut_mat[,order_genes]), seq_len(NCOL(mut_mat)))
+    order_pat = rownames(mut_mat)[do.call(order, c(ord_list, decreasing=TRUE))]
+
+    tab_data$patient = factor(tab_data$patient, order_pat, ordered = TRUE)
+    tab_data$gene = factor(tab_data$gene, rev(order_genes), ordered = TRUE)
+  }
+
+  #---------------------------------------------
+
+  if (!is.null(gene_to_gr)) {
+    tab_data$gene_gr = gene_to_gr(as.character(tab_data$gene))
+  }
+
+  #---------------------------------------------
+
+  n_gene_mutated = apply(mut_mat > 0 , 2, sum)
+  n_patients = NCOL(mut_mat)
+  label_mut = sprintf("n = %d", n_gene_mutated)
+  y_pos_mut = match(names(n_gene_mutated), order_genes)
+  mutation_labs = data.frame(y=y_pos_mut, x=n_patients+1, label=label_mut)
+
+  #---------------------------------------------
+
+  tab_data$plot_value = tab_data$fraction_mutated
+
+  #---------------------------------------------
+
+  lf = labeller(.default = Hmisc::capitalize)
+
+  plot_heatmap =
+    tab_data %>%
+    dplyr::mutate(plot_value = ifelse(plot_value > 0, plot_value, NA)) %>%
+    dplyr::filter(is.na(plot_value)) %>%
+    ggplot(aes(x=patient, y=gene, fill=plot_value)) +
+    theme_cowplot() +
+    geom_tile(color="gray0", size=0.2) +
+    scale_fill_continuous(na.value="white", guide="none") +
+    facet_grid(.~as.character(tissue), scales="free", space="free", drop=FALSE, labeller = lf) +
+    theme(axis.text.x=element_text(angle=90, vjust=0.5, hjust=1)) +
+    theme(legend.position="bottom", legend.box="vertical") +
+    theme(strip.text = element_text(size=11), strip.background = element_blank()) +
+    xlab(xlab) +
+    ylab("") +
+    labs(color="")
+
+  #---------------------------------------------
+
+  if (is.factor(d$type)) {
+    uniq_types = levels(d$type)
+  } else {
+    uniq_types = na.omit(sort(unique(d$type)))
+  }
+  fill_colors = c("#bd0026","#08589e", "#810f7c", rainbow(n=10))
+  stopifnot(length(uniq_types) <= length(fill_colors))
+
+  fill_guide = guide_legend(
+    title.position = "top",
+    title.hjust = 0.5,
+    override.aes = list(shape = NA)
+  )
+
+  for (i in rev(seq_along(uniq_types))) {
+    plot_heatmap =
+      plot_heatmap +
+      ggnewscale::new_scale_fill() +
+      geom_tile(
+        data = dplyr::filter(tab_data, type == uniq_types[i] & plot_value > 0),
+        aes(fill = plot_value),
+        color = "gray0",
+        size = 0.2
+      ) +
+      scale_fill_gradient(
+        na.value = "white",
+        low = "white",
+        high = fill_colors[i],
+        limits = c(-0.2, 1.1),
+        guide = fill_guide
+      ) +
+      labs(fill=paste0("Fraction of samples mutated (", uniq_types[i], ")"))
+  }
+
+  #---------------------------------------------
+
+  plot_heatmap =
+    plot_heatmap +
+    geom_point(
+      data = dplyr::filter(tab_data, status == "clonal"),
+      aes(color = "Clonal"),
+      size = 0.8
+    ) +
+    scale_color_manual(
+      values = c("Clonal" = "darkorange")
+    ) +
+    guides(
+      color =
+        guide_legend(
+          title.position = "top",
+          title.hjust = 0.5
+        )
+    ) +
+    labs(color=" ")
+
+  #---------------------------------------------
+
+  plot_heatmap =
+    plot_heatmap + # ensure correct order of labels
+    scale_x_discrete(breaks = order_pat,  labels = gsub(" ","", order_pat))
+  #  scale_y_discrete(limits = rev(order_genes))
+
+  #---------------------------------------------
+
+  if ("gene_gr" %in% colnames(tab_data)) {
+    # if there is a gene group in the data split plot by it
+
+    plot_heatmap =
+      plot_heatmap +
+      facet_grid(
+        gene_gr ~ tissue,
+        scales = "free",
+        space = "free",
+        drop = FALSE,
+        labeller = lf
+      )
+  }
+
+  #---------------------------------------------
+
+  gt = ggplotGrob(plot_heatmap)
+  for (i in which(grepl("strip-[tr]", gt$layout$name))){
+    gt$grobs[[i]]$layout$clip = "off"
+  }
+
+  return(gt)
+}
+
+
+#' Adds a 'cluster' id to a mutation data frame
+#'
+#' @param d A mutation data frame.
+#' @param ccf_cutoff Cutoff of the CCF to consider sample mutated [default:0.25].
+#' @param small_frac Relative size of the smallest cluster to label [default:0.01].
+#'
+#' @return A mutation data frame with a cluster id column 'clust_id' added.
+#' @export
+add_cluster_infos = function(d, ccf_cutoff=0.25, small_frac=0.01) {
+
+  checkmate::assert_data_frame(d)
+  checkmate::assertSubset(c("CCF", "mutation","sample"), colnames(d))
+  checkmate::assertNumber(ccf_cutoff, lower = 0, upper = Inf)
+  checkmate::assertNumber(small_frac, lower = 0, upper = 1)
+
+  # spread mut to matrix
+  mut_mat = tapply(d$CCF > ccf_cutoff, list(d$mutation, d$sample), as.numeric)
+  mut_mat = mut_mat[,!apply(is.na(mut_mat), 2, all)]
+
+  # order case ids
+  mut_mat = mut_mat[,order(apply(mut_mat, 2, sum, na.rm=TRUE))]
+  smp_ids = unique(c(colnames(mut_mat), as.character(d$sample)))
+  d$sample = factor(d$sample, smp_ids)
+
+  # collapse to id
+  mut_id = apply(mut_mat, 1, paste0, collapse="")
+  n_large = max(c(0, length(mut_id) * small_frac))
+  large_groups = names(which(table(mut_id) > n_large))
+  mut_id[!mut_id %in% large_groups] = "small"
+
+  # add as factor to data
+  ord_mut_id = unique(mut_id[order(apply(mut_mat, 1, sum), decreasing=FALSE)])
+  ord_mut_id = rev(unique(c("small", rev(ord_mut_id))))
+  d$mut_id = factor(mut_id[d$mutation], ord_mut_id, ordered = TRUE)
+
+  cl_order = paste0("C", seq_along(levels(d$mut_id))-1)
+  cl_order[rev(levels(d$mut_id)) == "small"] = "S"
+
+  d$clust_id = factor(d$mut_id, levels(d$mut_id), rev(cl_order), ordered=TRUE)
+
+  return(d)
+}
+
+
+#' Function to plot mutation data as a heatmap
+#'
+#' @param d A mutation data frame.
+#' @param value Name of numeric id to plot. (default: "VAF")
+#' @param annot Optional annotation of mutations. Names have to be mutation ids and the values the annotation.
+#' @param title Optional title to add to plot.
+#'
+#' @return A ggplot object.
+#' @export
+#' @import ggplot2
+#'
+plot_mutation_heatmap = function(d, value="VAF", annot=NULL, title="") {
+
+  checkmate::assert_data_frame(d)
+  checkmate::assertSubset(c(value, "mutation", "sample", "clust_id"), colnames(d))
+  checkmate::assertCharacter(annot, names = "named", null.ok = TRUE)
+  checkmate::assertString(title)
+
+  d$value_plot = d[,value]
+
+  pl =
+    dplyr::filter(d, !is.na(sample)) %>%
+    ggplot(aes(y=mutation, x=sample, fill=value_plot)) +
+    facet_grid(clust_id~., scale="free", space="free") +
+    geom_tile() +
+    xlab("Sample") +
+    ylab("") +
+    labs(fill=value) +
+    scale_fill_gradient(
+      low = "white",
+      high = "darkred",
+      limits = c(0, 1),
+      oob = scales::squish,
+      na.value = "gray99"
+    ) +
+    theme(
+      axis.text.x = element_text(angle=90, vjust=0.5),
+      axis.text.y = element_blank(),
+      strip.text.y = element_text(size=10, angle=0),
+      axis.line.y=element_blank()
+    ) +
+    ggtitle(
+      ggtitle(title, sprintf("N = %d", length(unique(d$mutation))))
+    )
+
+
+  # split by group variable
+  if ("group" %in% colnames(d))
+    pl = pl + facet_grid(clust_id~group, scale="free", space="free")
+
+
+  # add mutation annotations
+  if (is.null(annot)) {
+    annot = annot[names(annot) %in% d$mutation]
+
+    pl = pl + scale_y_discrete(breaks=names(annot), labels=annot) +
+      theme(axis.text.y = element_text(size=10, color=alpha("black", 0.8)))
+  }
+
+  return(pl)
+}
+
+
+#' Function to plot mutation data as a histogram
+#'
+#' @param d A mutation data frame.
+#' @param value Name of numeric id to plot [default: "VAF"].
+#' @param max_value Maximum value fo the value column. [default: Inf].
+#' @param title Optional title to add to plot.
+#'
+#' @return A ggplot object.
+#' @export
+#' @import ggplot2
+#'
+plot_mutation_histogram = function(d, value="VAF", max_value=Inf, title="") {
+
+  checkmate::assert_data_frame(d)
+  checkmate::assertSubset(c(value, "mutation", "sample"), colnames(d))
+  checkmate::assertString(title)
+  checkmate::assertNumber(max_value, na.ok = FALSE, null.ok = FALSE)
+
+  d$value_plot = d[,value]
+  if (!"clust_id" %in% colnames(d)) d$clust_id = NA
+
+  n_groups = length(na.omit(unique(d$clust_id)))
+  col_vals = grDevices::colorRampPalette(RColorBrewer::brewer.pal(8, "Accent"))(n_groups)
+
+  # Histograms
+  pl = d %>%
+    mutate(value_plot=if_else(value_plot>max_value, max_value, value_plot)) %>%
+    ggplot(aes(x=value_plot, fill=clust_id, group=paste0(sample, clust_id))) +
+      geom_histogram(binwidth=0.025, alpha=1, position="identity") +
+      facet_wrap(~as.character(sample), ncol=4, scales = "free_y") +
+      scale_fill_manual(values=col_vals, na.value = "gray30") +
+      xlim(0.01, NA) +
+      xlab(value) +
+      ylab("Count") +
+      labs(fill="Cluster")+
+      ggtitle(ggtitle(title, sprintf("N = %d", length(unique(d$mutation)))))
+
+  return(pl)
+}
+
+
+
+#' Function to plot intermutation distances
+#'
+#' @param d A mutation data frame. Can be obtained using 'vcf_to_data_frame' from a 'CollapsedVCF' object.
+#' @param title Optional title to add to plot. . (Default: "")
+#' @param geno A 'BSgenome' object that can be used to set limits and order of chromosomes. (Default: NULL)
+#'
+#' @return A ggplot object.
+#' @export
+#' @import ggplot2
+#'
+plot_inter_mutation_distance = function(d, title="", geno=NULL) {
+
+  checkmate::assertTRUE(inherits(d, c("data.frame", "CollapsedVCF")))
+  checkmate::assertString(title)
+
+  if (inherits(d, "data.frame")) {
+    checkmate::assertTRUE("mutation" %in% colnames(d))
+    mut_ids = unique(d$mutation)
+  } else if (inherits(d, "CollapsedVCF")) {
+    mut_ids = d
+  } else {
+    stop()
+  }
+
+  mut_data = THmisc::get_mutation_df(mut_ids)
+  mut_data$type = THmisc::get_mutation_type(mut_ids)
+  mut_data$transition = THmisc:::get_transition_type(mut_ids)
+  n_muts = NROW(mut_ids)
+
+  # insert inter mutation distance
+  get_mm_dist = function(x) sapply(seq_along(x), function(i) min(abs(x[i]-x[c(i-1,i+1)]), na.rm=TRUE))
+  starts_per_chr = split(mut_data$start, mut_data$chr)
+  mut_data$mut_mut_dist = unlist(lapply(starts_per_chr, get_mm_dist))
+
+  if (!is.null(geno)) {
+
+    # order of chromosomes
+    wh = GenomicRanges::seqnames(geno) %in% mut_data$chr
+    chr_ord = GenomicRanges::seqnames(geno)[wh]
+    mut_data$chr = factor(mut_data$chr, chr_ord, ordered=TRUE)
+
+    # mark of end of each chromosome
+    end_marks =
+      data.frame(
+        chr = chr_ord,
+        start = seqlengths(geno)[chr_ord],
+        end = NA,
+        ref = NA,
+        alt = NA,
+        type = "SNV",
+        mut_mut_dist = max(mut_data$mut_mut_dist),
+        transition = NA
+      )
+
+    mut_data =
+      rbind(
+        mut_data,
+        end_marks
+      )
+
+  }
+
+  # Plot waterfall plot
+  pl =
+    mut_data %>%
+    dplyr::filter(type == "SNV") %>%
+    ggplot(aes(x=start, y=mut_mut_dist, color=transition)) +
+    geom_point(alpha=0.8, size=0.5) +
+    facet_grid(~chr, scales="free_x", space="free_x") +
+    scale_y_log10() +
+    xlab("Position") +
+    labs(color="Type") +
+    theme(axis.text.x=element_blank(), axis.ticks=element_blank()) +
+    theme(strip.text.x=element_text(angle=90)) +
+    background_grid() +
+    scale_color_manual(values = trans_colors, breaks=names(trans_colors)) +
+    ylab("Inter-mutation distance") +
+    guides(colour=guide_legend(override.aes=list(size=1, alpha=1))) +
+    ggtitle(title, sprintf("N = %d", n_muts))
+
+  return(pl)
+}
