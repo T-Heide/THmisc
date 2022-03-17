@@ -774,3 +774,311 @@ drop_multiallelic = function(d) {
 
   d[wh,]
 }
+
+
+#' Convert a VCF to a data.frame containing key statistics
+#'
+#' @param d Object of class 'CollapsedVCF'
+#' @param relevant_consequences A character vector defining the relevant consequences to return in the annotations. The possible options are 'high', 'moderate', 'low', 'modifier', 'all' or a combination of these. See https://www.ensembl.org/info/genome/variation/prediction/predicted_data.html for details. (Default: 'high' and 'moderate')
+#' @param annotate_all_variants A logical flag indicating if all variants should be included in the annotations or if only the one of the canonical transcript should be keeped. (Default: FALSE)
+#' @param annotate_all_genes A logical flag indicating if all genes should be included.  (Default: TRUE)
+#' @param include_annot A logical flag indicating if the annotation of the variant should be included. (Default: FALSE)
+#' @param trim_canocial A logical flag indicating if the transcript ID of canonical transcripts should be removed. (Default: TRUE)
+#' @param genes A character vector of gene names to which the mutation data should be subset. If NULL all genes are included. (Default: NULL)
+#'
+#' @return A data.frame containing selected information.
+#' @export
+#'
+#' @examples
+vcf_to_data_frame = function(d, relevant_consequences=c("high","moderate"), annotate_all_variants=FALSE, annotate_all_genes=TRUE, include_annot=FALSE, trim_canocial=TRUE, genes=NULL) {
+
+  if (is.character(d)) {
+    checkmate::assertFileExists(d)
+    d = readRDS(d)
+  }
+
+  checkmate::assertClass(d, "CollapsedVCF")
+  checkmate::assertCharacter(relevant_consequences, null.ok=FALSE, any.missing=FALSE)
+  checkmate::assertFlag(annotate_all_variants)
+  checkmate::assertFlag(annotate_all_genes)
+  checkmate::assertFlag(include_annot)
+  checkmate::assertCharacter(genes, null.ok=TRUE, any.missing=FALSE)
+
+
+  #---------------------------------------------
+
+  # parse selected consequences
+  rel_csq_in = relevant_consequences
+  relevant_consequences = c()
+
+  for (i in seq_along(rel_csq_in)) {
+    if (rel_csq_in[i] %in% names(THmisc:::csq_consequence_mapper)) {
+      added_csqs = THmisc:::csq_consequence_mapper[[rel_csq_in[i]]]
+    } else {
+      if (rel_csq_in[i] %in% unlist(THmisc:::csq_consequence_mapper)) {
+        added_csqs = rel_csq_in[i]
+      } else {
+        alt_csq = gsub(" ", "_", tolower(rel_csq_in[i]))
+        if (alt_csq %in% unlist(THmisc:::csq_consequence_mapper)) {
+          added_csqs = alt_csq
+        } else{
+          msg = paste0(
+            "Unkown consequence ",
+            sQuote(rel_csq_in[i]),
+            ".\n",
+            "Use ",
+            sQuote("THmisc:::csq_consequence_mapper"),
+            " to see valid ones\n."
+          )
+          stop(msg)
+        }
+      }
+    }
+    relevant_consequences = c(relevant_consequences, added_csqs)
+  }
+
+  #---------------------------------------------
+
+  empty_result =
+    data.frame(
+      mutation=character(),
+      sample=character(),
+      variant=character(),
+      CN=numeric(),
+      CCF=numeric(),
+      VAF=numeric(),
+      NV=numeric(),
+      NR=numeric(),
+      AB=character(),
+      type=factor(levels = c("SNV","MNV","InDel")),
+      gene=character()
+    )
+
+  if (NROW(d) == 0)
+    return(empty_result)
+
+  #---------------------------------------------
+
+  has_annot = "ANNOTATION" %in% colnames(S4Vectors::elementMetadata(SummarizedExperiment::rowRanges(d)))
+  has_csq = "CSQ" %in% names(VariantAnnotation::info(d))
+
+  #---------------------------------------------
+
+  if (has_csq) {
+
+    .get_feature = THmisc:::get_csq_parser(d)
+
+    .replace_aa_codes = function(v) {
+      p = c("Ter", seqinr::aaa())
+      r = c("*", seqinr::a())
+      for (i in seq_along(p))
+        v = gsub(p[i], r[i], v)
+      return(v)
+    }
+
+    .gen_annot = function(x, trim_canocial) {
+
+      if (length(x) == 0)
+        return("")
+
+      paste(sapply(x, function(b) {
+        gene = .get_feature(b, "SYMBOL")
+
+        conseq = .replace_aa_codes(.get_feature(b, "HGVSp"))
+
+        if (trim_canocial & conseq != "")
+          conseq = strsplit(conseq , ":")[[1]][2]
+
+        if (conseq == "") {# no protein code, try coding
+          conseq = .get_feature(b, "HGVSc")
+
+          if (trim_canocial & conseq != "")
+            conseq = strsplit(conseq , ":")[[1]][2]
+
+          if (conseq != "")
+            conseq = paste0(conseq, ", ")
+
+          conseq = paste0(conseq, stringr::str_to_title(gsub("_", " ", .get_feature(b, "Consequence"))))
+        }
+
+        conseq = gsub("%3", "", conseq)
+
+        paste0(gene, " (", conseq, ")")
+      }), collapse="; ")
+    }
+
+    .get_most_relevant_csq = function(x) {
+
+      if (annotate_all_variants) {
+
+        wh_annotate = rep(TRUE, length(x))
+
+      } else {
+
+        conseq = strsplit(.get_feature(x, "Consequence"), "&")
+        is_trans = .get_feature(x, "Feature_type") == "Transcript"
+        is_canon = .get_feature(x, "Feature") %in% THmisc:::canonical_transcripts$transcript
+
+        most_relevant = sapply(lapply(conseq, match, relevant_consequences), max, na.rm=TRUE)
+        most_relevant[is.infinite(most_relevant)] = NA
+        if (all(is.na(most_relevant))) {
+          is_relevant = rep(FALSE, length(most_relevant))
+        } else {
+          is_relevant = most_relevant == max(most_relevant, na.rm=TRUE)
+          is_relevant = sapply(is_relevant, isTRUE)
+        }
+
+        # identify elements to use for annotation
+        wh_annotate = is_relevant & is_canon & is_trans
+        trim_canocial = TRUE
+        if (sum(wh_annotate) == 0) {
+          wh_annotate = is_relevant & is_trans
+          trim_canocial = FALSE
+          if (sum(wh_annotate) == 0) {
+            wh_annotate = is_relevant
+          }
+          if (!annotate_all_genes & any(wh_annotate)){
+            wh_annotate = which(wh_annotate)[1]
+          }
+        }
+
+      }
+
+      annot = .gen_annot(x[wh_annotate], trim_canocial)
+
+      #}, error=function(e){print(e); NA})
+
+    }
+
+  }
+
+  #---------------------------------------------
+
+  if (!is.null(genes)) {
+
+    if (has_csq) {
+
+      .keep_el =  function(x) any(unlist(x) %in% genes)
+
+      # drop irrelevant lines
+      csq_sym = lapply(VariantAnnotation::info(d)$CSQ, .get_feature, "SYMBOL")
+      csq_sym_spl = csq_sym %>% lapply(strsplit, "[%]")
+      lines_keep = sapply(csq_sym_spl, .keep_el)
+      d = d[lines_keep,]
+
+      # drop irrelevant annotations
+      csq_sym_spl = csq_sym_spl[lines_keep]
+      csq_keep = lapply(csq_sym_spl, sapply, .keep_el)
+      VariantAnnotation::info(d)$CSQ =
+        mapply(function(x, y) x[y], VariantAnnotation::info(d)$CSQ, csq_keep, SIMPLIFY = FALSE) %>%
+        CharacterList()
+
+    } else if (has_annot) {
+
+      gene = gsub(" [(].*", "", SummarizedExperiment::rowRanges(d)$ANNOTATION)
+      wh_keep = sapply(gene, function(x) any(x %in% genes))
+      d = d[wh_keep,]
+      warning("Does not contain CSQ. Will not filter consequences.\n")
+
+    } else {
+      stop("Can't filter for genes since CSQ strings are missing. Add code?\n")
+    }
+  }
+
+  if (NROW(d) == 0)
+    return(empty_result)
+
+  #---------------------------------------------
+
+  if (has_csq & include_annot) {
+    mut_annot = sapply(VariantAnnotation::info(d)$CSQ, .get_most_relevant_csq)
+    names(mut_annot) = rownames(d)
+  } else if (has_annot) {
+    mut_annot = SummarizedExperiment::rowRanges(d)$ANNOTATION
+    names(mut_annot) = rownames(d)
+  } else {
+    mut_annot = rep(NA, NROW(d))
+    names(mut_annot) = rownames(d)
+  }
+
+  .retabulate = function(x) {
+    x_ = unlist(x)
+    dim(x_) = dim(x)
+    x_ = data.frame(x_)
+    dimnames(x_) = dimnames(x)
+    cbind(data.frame(id=rownames(x_)), x_)
+  }
+
+  to_merge = list()
+  for (e in c("CN","CCF","VAF","NV","NR","AB")) {
+    if (e %in% names(VariantAnnotation::geno(d))) {
+      to_merge[[e]] =
+        .retabulate(VariantAnnotation::geno(d)[[e]]) %>%
+        reshape::melt(id.var="id")
+    } else {
+      if (e == "NR" & "DP" %in% names(VariantAnnotation::geno(d))) {
+        to_merge[[e]] =
+          .retabulate(VariantAnnotation::geno(d)$DP) %>%
+          reshape::melt(id.var="id")
+      } else if (e == "NV" & "AD" %in% names(VariantAnnotation::geno(d))) {
+        nv = apply(VariantAnnotation::geno(d)$AD, 2, sapply, "[", 2)
+        dim(nv) = dim(d)
+        dimnames(nv) = dimnames(d)
+        to_merge[[e]] = .retabulate(nv) %>%  reshape::melt()
+      } else if (e == "VAF" & "AF" %in% names(VariantAnnotation::geno(d))) {
+        af = VariantAnnotation::geno(d)$AF
+        to_merge[[e]] = .retabulate(af) %>%  reshape::melt(id.vars="id")
+      } else if (e %in% c("AB","CN","CCF")) { # cna data are optional
+        na_res = matrix(NA, nrow = NROW(d), ncol = NCOL(d))
+        dimnames(na_res) = dimnames(d)
+        to_merge[[e]] = reshape::melt(na_res)
+      }
+    }
+  }
+
+  for (i in seq_along(to_merge)[-1]) {
+    checkmate::assertTRUE(all(to_merge[[1]][,1:2] == to_merge[[i]][,1:2]))
+    to_merge[[i]] = to_merge[[i]][,-c(1:2)]
+  }
+
+  # merge CN, VAF and AB etc. counts data:
+  .get_gene = function(x) {
+    as.character(x) %>%
+      strsplit(split="[; ]",fixed = TRUE) %>%
+      lapply(gsub, pattern=" [(][&.+->?_,: A-Za-z0-9*]+[)]", replacement="") %>%
+      lapply(gsub, pattern=" [pc][.].*", replacement="") %>%
+      lapply(gsub, pattern=" ", replacement="") %>%
+      sapply(paste0, collapse=";")
+  }
+
+  data_bound =
+    do.call(what=cbind, to_merge) %>%
+    magrittr::set_colnames(c("mutation","sample", names(to_merge))) %>%
+    dplyr::mutate(variant = mut_annot[as.character(mutation)]) %>%
+    dplyr::mutate(gene = .get_gene(variant)) %>%  # set mutation types:
+    dplyr::mutate(type = THmisc::get_mutation_type(mutation))  # set mutation types:
+
+
+  checkmate::assertSetEqual(colnames(empty_result), colnames(data_bound))
+
+  #---------------------------------------------
+
+  # order AB counts (keep up to cn of 20):
+  n_max = max(c(4, max(nchar(as.character(data_bound$AB)), na.rm=TRUE)))
+
+  ab_levels =
+    unlist(lapply(0:n_max, function(x)
+      lapply(seq(from = 0, to = floor(x / 2)), function(y)
+        paste0(c(rep("A", x - y), rep("B", y)), collapse = ""))))
+
+  ab_levels = ab_levels[order(ab_levels)]
+  ab_levels = ab_levels[order(nchar(ab_levels))]
+
+  stopifnot(all(as.character(data_bound$AB) %in% ab_levels | is.na(data_bound$AB)))
+  data_bound$AB = factor(data_bound$AB, ab_levels, ordered=TRUE)
+
+
+  return(data_bound[,colnames(empty_result)])
+}
+
+
