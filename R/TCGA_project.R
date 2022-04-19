@@ -1,13 +1,13 @@
 #' TCGA project: Create a annotation for a vector of TCGA barcodes.
 #'
 #' @param barcodes A character vector of TCGA sample barcodes.
-#' @param extract Logical flag if barcodes should be extracted from 'barcodes' (Default: False).
+#' @param extract Logical flag if barcodes should be extracted from 'barcodes' (Default: FALSE).
 #'
 #' @return A data frame with sample annotations.
 #' @export
 #'
 #' @examples annotation_from_barcode_tcga("TCGA-02-0001-01C-01D")
-annotation_from_barcode_tcga = function(barcodes, extract=TRUE) {
+annotation_from_barcode_tcga = function(barcodes, extract=FALSE) {
 
   # Wildcard identifying TCGA barcode specifications:
   # TCGA-TSS-Patient-Sample+Vial-Portion+Analyte-Plate-Center
@@ -22,20 +22,18 @@ annotation_from_barcode_tcga = function(barcodes, extract=TRUE) {
   # Stop if some barcodes do not meet the specs:
   err = sum(!grepl(wildcard, barcodes))
   if (err) {
-    stop(sprintf("Error: %d barcodes do not meet EPICC specification.\n", err))
+    stop(sprintf("Error: %d barcodes do not meet TCGA specification.\n", err))
   }
 
   # Extract barcodes from strings (e.g. file names):
-  if (extract) {
-    barcodes_extracted = regmatches(barcodes, regexpr(wildcard, barcodes))
-    n_fixed = sum(barcodes_extracted != barcodes)
-    if (n_fixed) {
-      if (extract) {
-        msg = sprintf("Warning: Extracted %d barcodes from supplied strings.\n", n_fixed)
-        warning(msg)
-      } else {
-        stop(sprintf("Error: %d barcodes do not meet EPICC specification.\n", n_fixed))
-      }
+  barcodes_extracted = regmatches(barcodes, regexpr(wildcard, barcodes))
+  n_fixed = sum(barcodes_extracted != barcodes)
+  if (n_fixed) {
+    if (extract) {
+      msg = sprintf("Warning: Extracted %d barcodes from supplied strings.\n", n_fixed)
+      warning(msg)
+    } else {
+      stop(sprintf("Error: %d barcodes do not meet TCGA specification.\n", n_fixed))
     }
   }
 
@@ -87,6 +85,6 @@ annotation_from_barcode_tcga = function(barcodes, extract=TRUE) {
   splt_data_ret = splt_data[,sel_cols]
   colnames(splt_data_ret) = names(sel_cols)
   rownames(splt_data_ret) = NULL
-  
+
   return(splt_data_ret)
 }
