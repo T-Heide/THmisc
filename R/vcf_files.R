@@ -20,10 +20,10 @@ get_vaf = function(d) {
     NV = VariantAnnotation::geno(d)$NV; storage.mode(NV) = "numeric"
     VAF = NV / NR
 
-  } else if ("AF" %in% geno_el) { 
-    # use the existing AF element 
+  } else if ("AF" %in% geno_el) {
+    # use the existing AF element
     VAF = VariantAnnotation::geno(d)$AF
-    
+
   } else {
     #-------------------------------------------------------
     # stop
@@ -172,12 +172,12 @@ load_platypus_vcf = function(f) {
 #' @return A object of class 'CollapsedVCF'
 #' @keywords internal
 load_mutect2_vcf = function(f) {
-  
+
   # check arguments
   cl = checkmate::makeAssertCollection()
   checkmate::assertFileExists(f, access="r", add=cl)
   checkmate::reportAssertions(cl)
-  
+
   # load and modify platpyus vcf file
   d = VariantAnnotation::readVcf(f) %>%
     split_multiallelic() %>%
@@ -193,7 +193,7 @@ get_csq_parser = function(d) {
   csq_format = strsplit(gsub("^.*Format: ", "", csq_annot), split="[|]")[[1]]
   (function(l) {return({
     function(e=NULL, f=NULL) {
-      
+
       if (is.null(e)) {
         cat("Field:\n")
         print(csq_format)
@@ -240,8 +240,8 @@ split_multiallelic = function(d) {
     if (all(substr(y, 1, 1) == substr(x, 1, 1))) {
       y = substr(y, 2, nchar(y))
       y[y == ""] = "-"
-    } 
-    
+    }
+
     y
   }
 
@@ -269,16 +269,16 @@ split_multiallelic = function(d) {
 
     # csq string:
     if ("CSQ" %in% names(VariantAnnotation::info(d_cur))) {
-      
+
       # get allele infos from vcf
       alts = S4Vectors::lapply(VariantAnnotation::alt(d_cur), as.character)
       ref = as.character(VariantAnnotation::ref(d_cur))
       al_keep = lapply(alts, "[", i)
-      
+
       # get alt alleles from csq
       csqs = VariantAnnotation::info(d_cur)$CSQ
       al_nums = S4Vectors::lapply(csqs, csq_parser, "ALLELE_NUM")
-      
+
       if (any(is.na(unlist(al_nums)))) {
 
         # try modifying the alles so that is matched the ones in CSQ
@@ -286,28 +286,28 @@ split_multiallelic = function(d) {
         al_csq = S4Vectors::lapply(csqs, csq_parser, "Allele")
         exp_csq = mapply(.get_eq_if_default, ref, alts, SIMPLIFY = FALSE)
 
-        if (!all(unlist(mapply("%in%", al_csq, exp_csq)))) { 
+        if (!all(unlist(mapply("%in%", al_csq, exp_csq)))) {
           # probably the minimal option was used,
-          # in this case estimating the csq allele annotation is not 
+          # in this case estimating the csq allele annotation is not
           # done. Complain and exit.
           paste0(      # print warning that ALLELE_NUM are missing and stop.
             "Couldn't find ", sQuote("ALLELE_NUM"), " in the CSQ annotations!\n",
             "  => Please rerun VEP with ", sQuote("--allele_number"), " added."
           ) %>% stop()
         }
-        
+
         al_nums = mapply(match, al_csq, exp_csq, SIMPLIFY = FALSE)
-        
+
       }
-      
+
       # keep the select allele from the csq elements
       VariantAnnotation::info(d_cur)$CSQ =
         mapply("[", csqs, lapply(al_nums, "==", i), SIMPLIFY=0) %>%
         IRanges::CharacterList()
 
     }
-    
-    
+
+
     # gt string:
     if ("GT" %in%  names(VariantAnnotation::geno(d_cur))) {
       VariantAnnotation::geno(d_cur)$GT =
@@ -344,17 +344,17 @@ split_multiallelic = function(d) {
 
     d_cur
   }
-  
+
   checkmate::assertClass(d, "CollapsedVCF")
-  
+
   # keep elements with one allele
   n_elements = S4Vectors::elementNROWS(VariantAnnotation::alt(d))
   wh = n_elements == 1
   d_ret = d[wh,]
-  
+
   # if no biallelic return data
   n_sites = sum(!wh)
-  if (n_sites == 0) 
+  if (n_sites == 0)
     return(d_ret)
 
   # elements to drop if not all biallelic
@@ -382,8 +382,8 @@ split_multiallelic = function(d) {
 
   res = VariantAnnotation::rbind(d_ret, d_add)
   res = res[order(res),]
-  
-  rownames(res) = 
+
+  rownames(res) =
     sprintf(
       "%s:%d_%s/%s",
       GenomicRanges::seqnames(res),
@@ -391,7 +391,7 @@ split_multiallelic = function(d) {
       as.character(VariantAnnotation::ref(res)),
       as.character(unlist(VariantAnnotation::alt(res)))
     )
-  
+
   return(res)
 }
 
@@ -422,7 +422,7 @@ indentify_vcf_type = function(f) {
     if (gsub("[.].*", "", version) == "2")
       return("mutect2")
   })
-  
+
   return("unknown")
 }
 
@@ -559,8 +559,8 @@ load_vcf_file = function(f, ..., verbose=TRUE, annot=TRUE) {
   if (!file.exists(paste0(f, ".tbi")) & grepl("[.]gz$", f)) {
     VariantAnnotation::indexVcf(f)
   }
-  
-  
+
+
   # identify type of vcf file
   if (verbose) {
 
@@ -575,7 +575,7 @@ load_vcf_file = function(f, ..., verbose=TRUE, annot=TRUE) {
     print_file_info(f)
   }
 
-  # indentify the type of the vcf  
+  # indentify the type of the vcf
   if (verbose) cat("  Identifying type... \n")
   vcf_type = indentify_vcf_type(f)
   stopifnot(!is.na(vcf_type))
@@ -589,8 +589,8 @@ load_vcf_file = function(f, ..., verbose=TRUE, annot=TRUE) {
     cat("   => Type is ", type, ".\n\n", sep="")
     cat("  Loading data... \n")
   }
-  
-  
+
+
   # load data
   if (vcf_type == "platypus") {
     if (verbose) {
@@ -720,7 +720,7 @@ add_annot_wrapper = function(data, verbose=TRUE) {
         )
 
       }
-      
+
       if (verbose) {
         cat("\n")
         cat("  Generating annotations...\n  ")
@@ -1455,22 +1455,25 @@ save_driver_vaf_heatmap = function(d, out_file, genes=NULL, ...) {
 #' @param d Data frame containing the data to plot.
 #' @param crit_value Critical value of column 'use' to consider a sample to be mutated (i.e., d[,use] > crit_value)
 #' @param genes # Genes to include in the plot.
-#' @param use Column of the data frame containing information if a gene is mutated. 
+#' @param use Column of the data frame containing information if a gene is mutated.
 #' @param order_alphabetic Flag indicating if rows and columns should be ordered alphabetically.
 #' @param gene_to_gr # Named character vector or labeller function used to convert gene ids to a group label.
 #' @param keep_all_genes # Flag indicating if genes unmutaed in all samples should be included in the plot.
 #' @param xlab # Label for the x-axis (e.g., the genes)
+#' @param order_patients # Predefined order of samples, if logical TRUE then the calculated order is returned instead.
 #'
 #' @return
 #' @export
 #'
-plot_gene_mut_heatmap = function(d, crit_value=0.1, genes=NULL, use="CCF", order_alphabetic=FALSE, gene_to_gr=NULL, keep_all_genes=FALSE, xlab="") {
+plot_gene_mut_heatmap = function(d, crit_value=0.1, genes=NULL, use="CCF", order_alphabetic=FALSE, gene_to_gr=NULL, keep_all_genes=FALSE, xlab="", order_patients=NULL) {
 
   checkmate::assertDataFrame(d)
   checkmate::assertTRUE(all(c("patient","sample",use,"gene","variant") %in% colnames(d)))
   checkmate::assertCharacter(genes, null.ok = TRUE)
   checkmate::assertNumeric(d[,use], null.ok = FALSE, any.missing = FALSE)
   checkmate::assertFlag(order_alphabetic)
+  if (!isTRUE(order_patients))
+    checkmate::assertCharacter(order_patients, null.ok=TRUE)
 
   #---------------------------------------------
 
@@ -1609,13 +1612,20 @@ plot_gene_mut_heatmap = function(d, crit_value=0.1, genes=NULL, use="CCF", order
     order_pat = sort(as.character(tab_data$patient), decreasing = FALSE)
   } else {
     order_genes = names(sort(apply(mut_mat>0, 2, sum), decreasing = TRUE))
-
     ord_list = split(t(mut_mat[,order_genes]), seq_len(NCOL(mut_mat)))
     order_pat = rownames(mut_mat)[do.call(order, c(ord_list, decreasing=TRUE))]
-
-    tab_data$patient = factor(tab_data$patient, order_pat, ordered = TRUE)
-    tab_data$gene = factor(tab_data$gene, rev(order_genes), ordered = TRUE)
   }
+
+  if (!is.null(order_patients)) {
+
+    if (isTRUE(order_patients))
+      return(order_pat)
+
+    order_pat = order_patients
+  }
+
+  tab_data$patient = factor(tab_data$patient, order_pat, ordered = TRUE)
+  tab_data$gene = factor(tab_data$gene, rev(order_genes), ordered = TRUE)
 
   #---------------------------------------------
 
