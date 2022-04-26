@@ -1198,6 +1198,7 @@ plot_vaf_distribution = function(d, what="VAF", purity=NULL, ploidy=NULL) {
       data.frame(d) %>%
       dplyr::filter(sample == csample) %>%
       dplyr::filter(value > 0) %>%
+      dplyr::mutate(AB = factor(AB)) %>%
       mutate(AB=factor(AB, levels(AB)[nchar(levels(AB)) <= 4], ordered=TRUE)) %>%
       dplyr::filter(!is.na(AB))
 
@@ -1256,8 +1257,14 @@ plot_vaf_distribution = function(d, what="VAF", purity=NULL, ploidy=NULL) {
     plot =
       data_plot %>%
       ggplot(aes(x=value)) +
-      geom_histogram(aes(fill=type), bins=50,  alpha=1.0) +
-      geom_vline(data=peak_position_per_cn, aes(xintercept=value, group=af), linetype=2, color="gray30") +
+      geom_histogram(aes(fill=type), bins=50,  alpha=1.0)
+
+    if (!is.null(peak_position_per_cn)) {
+      plot = plot +
+        geom_vline(data=peak_position_per_cn, aes(xintercept=value, group=af), linetype=2, color="gray30")
+    }
+
+    plot = plot +
       geom_text(data=mutations_per_cn, aes(label=N, x=1, y=Inf), hjust=1, vjust=2, color="black") +
       facet_wrap(~AB, scales="free", drop=FALSE, labeller=ab_labels) +
       xlim(0, 1) +
