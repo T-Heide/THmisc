@@ -919,7 +919,8 @@ vcf_to_data_frame = function(d, relevant_consequences=c("high","moderate"), anno
         is_trans = .get_feature(x, "Feature_type") == "Transcript"
         is_canon = .get_feature(x, "Feature") %in% THmisc:::canonical_transcripts$transcript
 
-        most_relevant = sapply(lapply(conseq, match, relevant_consequences), max, na.rm=TRUE)
+        max_ = function(x) { if (all(is.na(x))) return(NA); max(x, na.rm=TRUE) }
+        most_relevant = sapply(lapply(conseq, match, relevant_consequences), max_)
         most_relevant[is.infinite(most_relevant)] = NA
         if (all(is.na(most_relevant))) {
           is_relevant = rep(FALSE, length(most_relevant))
