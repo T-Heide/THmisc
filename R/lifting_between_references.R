@@ -23,7 +23,7 @@ lift_data_wrapper = function(d, chain, geno, check_new_alleles=TRUE, multi_summa
   }
   
   if (is.character(d)) {
-    if (all(grepl("^(chr)[0-9XY]+:[0-9]+_[ACGT]/[ACGT]$", d))) {
+    if (all(grepl("^(chr)[0-9XY]+:[0-9]+_[ACGT]+/[ACGT]+$", d))) {
       # mutation ids
       d = d %>%
         strsplit("[:_/]") %>%
@@ -41,7 +41,7 @@ lift_data_wrapper = function(d, chain, geno, check_new_alleles=TRUE, multi_summa
         paste0(
           "Invalid or mixed string input for 'd'.\n\n",
           "  Valid formats are: \n",
-          "   - '^(chr)[0-9]+:[0-9]+_[ACGT]/[ACGT]$' (mutation id)\n",
+          "   - '^(chr)[0-9]+:[0-9]+_[ACGT]+/[ACGT]+$' (mutation id)\n",
           "   - '^(chr)[0-9]+:[0-9]+-[0-9]+$' (position interval)"
         )
       
