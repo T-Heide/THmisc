@@ -12,7 +12,8 @@ plot_gene_mut_heatmap(
   order_alphabetic = FALSE,
   gene_to_gr = NULL,
   keep_all_genes = FALSE,
-  xlab = ""
+  xlab = "",
+  order_patients = NULL
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ plot_gene_mut_heatmap(
 \item{keep_all_genes}{# Flag indicating if genes unmutaed in all samples should be included in the plot.}
 
 \item{xlab}{# Label for the x-axis (e.g., the genes)}
+
+\item{order_patients}{# Predefined order of samples, if logical TRUE then the calculated order is returned instead.}
 }
 \value{
 

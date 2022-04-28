@@ -2,7 +2,7 @@
 % Please edit documentation in R/epicc_project.R
 \name{annotation_from_barcode_epicc}
 \alias{annotation_from_barcode_epicc}
-\title{EPICC Project: Get sample annotations from sqmple barcodes.}
+\title{EPICC Project: Get sample annotations from sample barcodes.}
 \usage{
 annotation_from_barcode_epicc(barcodes, extract = FALSE)
 }
@@ -15,8 +15,9 @@ annotation_from_barcode_epicc(barcodes, extract = FALSE)
 A data frame with sample annotations, rownames are set if there are no duplicated barcodes.
 }
 \description{
-EPICC Project: Get sample annotations from sqmple barcodes.
+EPICC Project: Get sample annotations from sample barcodes.
 }
 \examples{
 annotation_from_barcode_epicc("EPICC_C516_Z1_B1_D1")
+annotation_from_barcode_epicc("Text EPICC_C516_Z1_B1_D1 Text", extract = TRUE)
 }

@@ -19,4 +19,6 @@ Get sample annotations from sample barcodes.
 }
 \examples{
 annotation_from_barcode("EPICC_C516_Z1_B1_D1") # a EPICC sample barcode
+annotation_from_barcode("TCGA-02-0001-01C-01D") # a TCGA sample barcode
+annotation_from_barcode("Text TCGA-02-0001-01C-01D text", extract=TRUE) # a TCGA sample barcode
 }

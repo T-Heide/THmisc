@@ -12,17 +12,21 @@ get_gene_pos(
 )
 }
 \arguments{
-\item{x}{}
+\item{x}{A vector of gene symbols.}
 
-\item{txdb}{}
+\item{txdb}{Optional TxDb annotation object to use (default: TxDb.Hsapiens.UCSC.hg38.knownGene::TxDb.Hsapiens.UCSC.hg38.knownGene).}
 
-\item{egdb}{}
+\item{egdb}{Optional Bioconductor annotation package to use to lookup gene ids (default: egdb=org.Hs.eg.db::org.Hs.eg.db).}
 
-\item{return_intervals}{}
+\item{return_intervals}{Argument defining if all gene intervals should be returned (default: FALSE, i.e., a data.frame of gene center).}
 }
 \value{
 
 }
 \description{
 Function to look-up (average) gene positions.
+}
+\examples{
+get_gene_pos("KRAS") # data.frame that contains the position of the KRAS gene (around position 25220000 on chr12).
+get_gene_pos("KRAS", TxDb.Hsapiens.UCSC.hg19.knownGene::TxDb.Hsapiens.UCSC.hg19.knownGene) # data.frame that contains the position of the KRAS gene in the hg19 reference genome (around position 25380000 on chr12).
 }

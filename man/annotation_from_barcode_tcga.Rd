@@ -4,12 +4,12 @@
 \alias{annotation_from_barcode_tcga}
 \title{TCGA project: Create a annotation for a vector of TCGA barcodes.}
 \usage{
-annotation_from_barcode_tcga(barcodes, extract = TRUE)
+annotation_from_barcode_tcga(barcodes, extract = FALSE)
 }
 \arguments{
 \item{barcodes}{A character vector of TCGA sample barcodes.}
 
-\item{extract}{Logical flag if barcodes should be extracted from 'barcodes' (Default: False).}
+\item{extract}{Logical flag if barcodes should be extracted from 'barcodes' (Default: FALSE).}
 }
 \value{
 A data frame with sample annotations.
