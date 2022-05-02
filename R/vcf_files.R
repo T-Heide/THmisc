@@ -1769,10 +1769,11 @@ plot_gene_mut_heatmap = function(d, crit_value=0.1, genes=NULL, use="CCF", order
 #' @param d A mutation data frame.
 #' @param ccf_cutoff Cutoff of the CCF to consider sample mutated [default:0.25].
 #' @param small_frac Relative size of the smallest cluster to label [default:0.01].
+#' @param drop_all_sc Flag indicating with mutations absent in all samples should be removed [default:false].
 #'
 #' @return A mutation data frame with a cluster id column 'clust_id' added.
 #' @export
-add_cluster_infos = function(d, ccf_cutoff=0.25, small_frac=0.01) {
+add_cluster_infos = function(d, ccf_cutoff=0.25, small_frac=0.01, drop_all_sc=FALSE) {
 
   checkmate::assert_data_frame(d)
   checkmate::assertSubset(c("CCF", "mutation","sample"), colnames(d))
@@ -1782,11 +1783,17 @@ add_cluster_infos = function(d, ccf_cutoff=0.25, small_frac=0.01) {
   # spread mut to matrix
   mut_mat = tapply(d$CCF > ccf_cutoff, list(d$mutation, d$sample), as.numeric)
   mut_mat = mut_mat[,!apply(is.na(mut_mat), 2, all)]
+  if (drop_all_sc) mut_mat = mut_mat[apply(mut_mat, 1, sum, na.rm=TRUE) > 0, ]
 
   # order case ids
   mut_mat = mut_mat[,order(apply(mut_mat, 2, sum, na.rm=TRUE))]
   smp_ids = unique(c(colnames(mut_mat), as.character(d$sample)))
   d$sample = factor(d$sample, smp_ids)
+
+  # create matching ccf matrix:
+  ccf_val = ifelse(d$CCF < ccf_cutoff, 0, d$CCF)
+  ccf_mat = tapply(ccf_val, list(d$mutation, d$sample), c)
+  ccf_mat = ccf_mat[rownames(mut_mat),colnames(mut_mat)]
 
   # collapse to id
   mut_id = apply(mut_mat, 1, paste0, collapse="")
@@ -1795,14 +1802,21 @@ add_cluster_infos = function(d, ccf_cutoff=0.25, small_frac=0.01) {
   mut_id[!mut_id %in% large_groups] = "small"
 
   # add as factor to data
-  ord_mut_id = unique(mut_id[order(apply(mut_mat, 1, sum), decreasing=FALSE)])
+  n_mut = apply(mut_mat, 1, sum)
+  sort_by = c(list(n_mut), rev(split(t(ccf_mat), seq_len(NCOL(ccf_mat)))), list(decreasing=FALSE))
+  #sort_by = c(rev(split(t(mut_mat), seq_len(NCOL(mut_mat)))), rev(split(t(ccf_mat), seq_len(NCOL(ccf_mat)))), list(decreasing=FALSE))
+  ord_mut = names(mut_id)[do.call(order, sort_by)]
+  ord_mut_id = unique(mut_id[do.call(order, sort_by)])
   ord_mut_id = rev(unique(c("small", rev(ord_mut_id))))
   d$mut_id = factor(mut_id[d$mutation], ord_mut_id, ordered = TRUE)
+  d$mutation = factor(d$mutation, ord_mut, ordered = TRUE)
 
   cl_order = paste0("C", seq_along(levels(d$mut_id))-1)
   cl_order[rev(levels(d$mut_id)) == "small"] = "S"
 
   d$clust_id = factor(d$mut_id, levels(d$mut_id), rev(cl_order), ordered=TRUE)
+
+  d = d[!is.na(d$clust_id), ]
 
   return(d)
 }
