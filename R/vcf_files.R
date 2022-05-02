@@ -1875,7 +1875,57 @@ plot_mutation_heatmap = function(d, value="VAF", annot=NULL, title="") {
 
   # add mutation annotations
   if (!is.null(annot)) {
+
     annot = annot[names(annot) %in% d$mutation]
+
+    # reorder mutations to minimise overlaps within a cluster
+
+    cluster_table = pl$data %>%
+      dplyr::arrange(mutation) %>%
+      dplyr::select(mutation, clust_id) %>%
+      unique()
+
+    per_cluster_mut = # table to lookup all mutation in cluster
+      with(cluster_table,
+        split(as.character(mutation), clust_id)
+      )
+
+    per_cluster_annot = # table to lookup all annotations in cluster
+      with(cluster_table[cluster_table$mutation %in% names(annot),],
+           split(as.character(mutation), clust_id)
+      )
+
+    # find new order:
+    mutation_order = levels(pl$data$mutation)
+
+    for (cl in names(per_cluster_annot)) {
+      annot_cl = per_cluster_annot[[cl]]
+      muts_cl = per_cluster_mut[[cl]]
+      n_annot = length(annot_cl)
+      n_cluster = length(muts_cl)
+
+      if (n_annot == 0) {
+        next() # skip if no mutations in cluster
+      } else if (n_annot == 1) {
+        # put annotation in center of cluster
+        idx_put = floor(n_cluster * 0.5)
+      } else {
+        # put annotation equally spaced within the cluster
+        gap = floor(n_cluster * 0.05)
+        step = (n_cluster - 2 * gap) / (n_annot - 1)
+        idx_put = floor(gap + step * seq(0, (n_annot - 1)))
+      }
+
+      for (i in seq_along(idx_put)) {
+        idx_a = mutation_order == annot_cl[i]
+        idx_b = mutation_order == muts_cl[idx_put[i]]
+
+        mutation_order[idx_a] = muts_cl[idx_put[i]]
+        mutation_order[idx_b] = annot_cl[i]
+      }
+   }
+
+    pl$data$mutation = factor(pl$data$mutation, mutation_order, ordered=TRUE)
 
     pl = pl + scale_y_discrete(breaks=names(annot), labels=annot) +
       theme(axis.text.y = element_text(size=10, color=alpha("black", 0.8)))
