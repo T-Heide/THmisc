@@ -1850,7 +1850,7 @@ plot_mutation_heatmap = function(d, value="VAF", annot=NULL, title="") {
       axis.line.y=element_blank()
     ) +
     ggtitle(
-      ggtitle(title, sprintf("N = %d", length(unique(d$mutation))))
+      title, subtitle=sprintf("N = %d", length(unique(d$mutation)))
     )
 
 
@@ -1860,7 +1860,7 @@ plot_mutation_heatmap = function(d, value="VAF", annot=NULL, title="") {
 
 
   # add mutation annotations
-  if (is.null(annot)) {
+  if (!is.null(annot)) {
     annot = annot[names(annot) %in% d$mutation]
 
     pl = pl + scale_y_discrete(breaks=names(annot), labels=annot) +
