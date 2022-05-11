@@ -4,7 +4,7 @@
 \alias{add_cluster_infos}
 \title{Adds a 'cluster' id to a mutation data frame}
 \usage{
-add_cluster_infos(d, ccf_cutoff = 0.25, small_frac = 0.01)
+add_cluster_infos(d, ccf_cutoff = 0.25, small_frac = 0.01, drop_all_sc = FALSE)
 }
 \arguments{
 \item{d}{A mutation data frame.}
@@ -12,6 +12,8 @@ add_cluster_infos(d, ccf_cutoff = 0.25, small_frac = 0.01)
 \item{ccf_cutoff}{Cutoff of the CCF to consider sample mutated [default:0.25].}
 
 \item{small_frac}{Relative size of the smallest cluster to label [default:0.01].}
+
+\item{drop_all_sc}{Flag indicating with mutations absent in all samples should be removed [default:false].}
 }
 \value{
 A mutation data frame with a cluster id column 'clust_id' added.
