@@ -7,7 +7,6 @@
 #' @return A matrix containing annotations for each mutation object.
 #' @export
 #'
-#' @examples
 get_cnas = function(mutation_data, cna_segments, sample_ids=NULL) {
 
   if (inherits(mutation_data, "CollapsedVCF")) {

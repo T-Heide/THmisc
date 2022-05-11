@@ -12,6 +12,7 @@ Suggests:
     BSgenome.Hsapiens.UCSC.hg38,
     BSgenome.Hsapiens.UCSC.hg19,
     BSgenome.Hsapiens.UCSC.hg18,
+    TxDb.Hsapiens.UCSC.hg19.knownGene,
     TxDb.Hsapiens.UCSC.hg38.knownGene,
     pbapply
 Imports:
@@ -29,7 +30,25 @@ Imports:
     Biostrings,
     S4Vectors,
     progress,
-    seqinr
+    seqinr,
+    ggplot2,
+    Hmisc,
+    BiocGenerics,
+    D3GB, 
+    GenomeInfoDb, 
+    IRanges,
+    RColorBrewer, 
+    cowplot,
+    ggnewscale,
+    ggpubr,
+    ggrepel,
+    nnet,
+    plyr,
+    reshape,
+    reshape2,
+    rtracklayer,
+    scales,
+    stringr
 Config/testthat/edition: 3
 Encoding: UTF-8
 LazyData: true

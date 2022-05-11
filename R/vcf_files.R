@@ -789,7 +789,6 @@ drop_multiallelic = function(d) {
 #' @return A data.frame containing selected information.
 #' @export
 #'
-#' @examples
 vcf_to_data_frame = function(d, relevant_consequences=c("high","moderate"), annotate_all_variants=FALSE, annotate_all_genes=TRUE, include_annot=FALSE, trim_canocial=TRUE, genes=NULL) {
 
   if (is.character(d)) {
@@ -812,14 +811,14 @@ vcf_to_data_frame = function(d, relevant_consequences=c("high","moderate"), anno
   relevant_consequences = c()
 
   for (i in seq_along(rel_csq_in)) {
-    if (rel_csq_in[i] %in% names(THmisc:::csq_consequence_mapper)) {
-      added_csqs = THmisc:::csq_consequence_mapper[[rel_csq_in[i]]]
+    if (rel_csq_in[i] %in% names(csq_consequence_mapper)) {
+      added_csqs = csq_consequence_mapper[[rel_csq_in[i]]]
     } else {
-      if (rel_csq_in[i] %in% unlist(THmisc:::csq_consequence_mapper)) {
+      if (rel_csq_in[i] %in% unlist(csq_consequence_mapper)) {
         added_csqs = rel_csq_in[i]
       } else {
         alt_csq = gsub(" ", "_", tolower(rel_csq_in[i]))
-        if (alt_csq %in% unlist(THmisc:::csq_consequence_mapper)) {
+        if (alt_csq %in% unlist(csq_consequence_mapper)) {
           added_csqs = alt_csq
         } else{
           msg = paste0(
@@ -827,7 +826,7 @@ vcf_to_data_frame = function(d, relevant_consequences=c("high","moderate"), anno
             sQuote(rel_csq_in[i]),
             ".\n",
             "Use ",
-            sQuote("THmisc:::csq_consequence_mapper"),
+            sQuote("csq_consequence_mapper"),
             " to see valid ones\n."
           )
           stop(msg)
@@ -866,7 +865,7 @@ vcf_to_data_frame = function(d, relevant_consequences=c("high","moderate"), anno
 
   if (has_csq) {
 
-    .get_feature = THmisc:::get_csq_parser(d)
+    .get_feature = get_csq_parser(d)
 
     .replace_aa_codes = function(v) {
       p = c("Ter", seqinr::aaa())
@@ -917,7 +916,7 @@ vcf_to_data_frame = function(d, relevant_consequences=c("high","moderate"), anno
 
         conseq = strsplit(.get_feature(x, "Consequence"), "&")
         is_trans = .get_feature(x, "Feature_type") == "Transcript"
-        is_canon = .get_feature(x, "Feature") %in% THmisc:::canonical_transcripts$transcript
+        is_canon = .get_feature(x, "Feature") %in% canonical_transcripts$transcript
 
         max_ = function(x) { if (all(is.na(x))) return(NA); max(x, na.rm=TRUE) }
         most_relevant = sapply(lapply(conseq, match, relevant_consequences), max_)
@@ -1057,7 +1056,7 @@ vcf_to_data_frame = function(d, relevant_consequences=c("high","moderate"), anno
     magrittr::set_colnames(c("mutation","sample", names(to_merge))) %>%
     dplyr::mutate(variant = mut_annot[as.character(mutation)]) %>%
     dplyr::mutate(gene = .get_gene(variant)) %>%  # set mutation types:
-    dplyr::mutate(type = THmisc::get_mutation_type(mutation))  # set mutation types:
+    dplyr::mutate(type = get_mutation_type(mutation))  # set mutation types:
 
 
   checkmate::assertSetEqual(colnames(empty_result), colnames(data_bound))
@@ -1288,7 +1287,7 @@ plot_vaf_distribution = function(d, what="VAF", purity=NULL, ploidy=NULL) {
 
 #' Plot CN states of somatic sides across samples.
 #'
-#' @param d Object of class 'CollapsedVCF'
+#' @param data Object of class 'CollapsedVCF'
 #' @param min_freq Minimum relative size to include a group of CN states. (Default: 0.01)
 #'
 #' @return A ggplot object containing mutation histograms
@@ -2001,9 +2000,9 @@ plot_inter_mutation_distance = function(d, title="", geno=NULL) {
     stop()
   }
 
-  mut_data = THmisc::get_mutation_df(mut_ids)
-  mut_data$type = THmisc::get_mutation_type(mut_ids)
-  mut_data$transition = THmisc:::get_transition_type(mut_ids)
+  mut_data = get_mutation_df(mut_ids)
+  mut_data$type = get_mutation_type(mut_ids)
+  mut_data$transition = get_transition_type(mut_ids)
   n_muts = NROW(mut_ids)
 
   # insert inter mutation distance

@@ -7,9 +7,9 @@
 plot_cn_states_across_samples(data, min_freq = 0.01)
 }
 \arguments{
-\item{min_freq}{Minimum relative size to include a group of CN states. (Default: 0.01)}
+\item{data}{Object of class 'CollapsedVCF'}
 
-\item{d}{Object of class 'CollapsedVCF'}
+\item{min_freq}{Minimum relative size to include a group of CN states. (Default: 0.01)}
 }
 \value{
 A ggplot object containing mutation histograms

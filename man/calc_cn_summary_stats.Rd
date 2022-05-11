@@ -11,7 +11,7 @@ calc_cn_summary_stats(d, window_infos = NULL, ...)
 
 \item{window_infos}{A optional interval annotation data frame of windows. Must contain "chr","start","end","name","window" columns.}
 
-\item{...}{}
+\item{...}{arguements passed to `findAmplificationBins`}
 }
 \value{
 A list of  data.frame containing summary statics about how often a genomic window ('name') is lost, gained or amplified in each 'patient'.

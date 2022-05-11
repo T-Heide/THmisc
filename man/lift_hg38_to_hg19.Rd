@@ -18,5 +18,5 @@ A object with a structure similar to d with updated position data.
 Function to lift mutations or objects between genome versions
 }
 \examples{
-lift_hg38_to_hg19("chr2:148654004_T/C")
+lift_hg38_to_hg19("chr2:147896435_T/C")
 }

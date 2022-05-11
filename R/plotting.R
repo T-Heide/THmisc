@@ -1,14 +1,13 @@
-#' Title
+#' GGplot layer to plot a violing plot
 #'
-#' @param color 
-#' @param fill 
-#' @param ... 
+#' @param color Color of violin plot (default: light gray).
+#' @param fill Color of overlayed boxplot (default: dark gray).
+#' @param ... unused
 #'
-#' @return
+#' @return A list containg ggplot layers to create a violin plot with a overlayed boxplot and mean and median points.
 #' @export
 #'
-#' @examples
-pretty_violin = 
+pretty_violin =
   function(color="gray85", fill="gray10", ...) {
     list(
       ggplot2::geom_violin(fill=color, scale = "width", width=0.8),

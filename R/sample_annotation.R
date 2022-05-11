@@ -29,8 +29,8 @@ annotation_from_barcode = function(barcodes, extract=FALSE) {
   # try annotation with all known barcode fucntions
   annot_fun_to_test =
     list(
-      THmisc::annotation_from_barcode_epicc,
-      THmisc::annotation_from_barcode_tcga
+      annotation_from_barcode_epicc,
+      annotation_from_barcode_tcga
     )
 
   for (annot_fun in annot_fun_to_test) {

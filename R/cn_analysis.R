@@ -117,7 +117,7 @@ findAmplificationBins = function(dpw, m_cn, amp_factor = 2, max_amp_size = 10*10
 #'
 #' @param d A data.frame containing CN data. Must contain a 'sample' or 'sample_barcode', a 'patient' , 'CN' or 'value' (the copy-number value), and 'name' (the CN window name).
 #' @param window_infos A optional interval annotation data frame of windows. Must contain "chr","start","end","name","window" columns.
-#' @param ...
+#' @param ... arguements passed to `findAmplificationBins`
 #'
 #' @return A list of  data.frame containing summary statics about how often a genomic window ('name') is lost, gained or amplified in each 'patient'.
 #' @export

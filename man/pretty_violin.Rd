@@ -2,20 +2,20 @@
 % Please edit documentation in R/plotting.R
 \name{pretty_violin}
 \alias{pretty_violin}
-\title{Title}
+\title{GGplot layer to plot a violing plot}
 \usage{
 pretty_violin(color = "gray85", fill = "gray10", ...)
 }
 \arguments{
-\item{color}{}
+\item{color}{Color of violin plot (default: light gray).}
 
-\item{fill}{}
+\item{fill}{Color of overlayed boxplot (default: dark gray).}
 
-\item{...}{}
+\item{...}{unused}
 }
 \value{
-
+A list containg ggplot layers to create a violin plot with a overlayed boxplot and mean and median points.
 }
 \description{
-Title
+GGplot layer to plot a violing plot
 }

@@ -16,6 +16,6 @@ Complemental strand with identical orientation (3'->5' and 3'->5').
 Complemental strand of a DNA sequence with preserved direction.
 }
 \examples{
-baseComplement("ACCCG")
+baseRevComplement("ACCCG")
 }
 \keyword{internal}
