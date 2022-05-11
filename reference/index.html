@@ -42,17 +42,33 @@
           <p class="section-desc"></p>
         </th>
       </tr></tbody><tbody><tr><td>
+          <p><code><a href="add_cluster_infos.html">add_cluster_infos()</a></code> </p>
+        </td>
+        <td><p>Adds a 'cluster' id to a mutation data frame</p></td>
+      </tr><tr><td>
           <p><code><a href="annotation_from_barcode.html">annotation_from_barcode()</a></code> </p>
         </td>
         <td><p>Get sample annotations from sample barcodes.</p></td>
       </tr><tr><td>
           <p><code><a href="annotation_from_barcode_epicc.html">annotation_from_barcode_epicc()</a></code> </p>
         </td>
-        <td><p>EPICC Project: Get sample annotations from sqmple barcodes.</p></td>
+        <td><p>EPICC Project: Get sample annotations from sample barcodes.</p></td>
       </tr><tr><td>
           <p><code><a href="annotation_from_barcode_tcga.html">annotation_from_barcode_tcga()</a></code> </p>
         </td>
         <td><p>TCGA project: Create a annotation for a vector of TCGA barcodes.</p></td>
+      </tr><tr><td>
+          <p><code><a href="calc_avg_cn_per_bin.html">calc_avg_cn_per_bin()</a></code> </p>
+        </td>
+        <td><p>Calculate average copy-number values in bins.</p></td>
+      </tr><tr><td>
+          <p><code><a href="calc_cn_summary_stats.html">calc_cn_summary_stats()</a></code> </p>
+        </td>
+        <td><p>Calculate copy-number alteration summary stats</p></td>
+      </tr><tr><td>
+          <p><code><a href="calc_pga_stats.html">calc_pga_stats()</a></code> </p>
+        </td>
+        <td><p>Calculate PGA stats</p></td>
       </tr><tr><td>
           <p><code><a href="drop_multiallelic.html">drop_multiallelic()</a></code> </p>
         </td>
@@ -130,13 +146,57 @@
         </td>
         <td><p>Convert long peptide names to short ones.</p></td>
       </tr><tr><td>
+          <p><code><a href="plot_cn_altered_per_patient.html">plot_cn_altered_per_patient()</a></code> </p>
+        </td>
+        <td><p>Plot per-case copy-number alteration summary stats</p></td>
+      </tr><tr><td>
+          <p><code><a href="plot_cn_freq.html">plot_cn_freq()</a></code> </p>
+        </td>
+        <td><p>Plot copy-number alteration summary stats across cases</p></td>
+      </tr><tr><td>
+          <p><code><a href="plot_cn_states_across_samples.html">plot_cn_states_across_samples()</a></code> </p>
+        </td>
+        <td><p>Plot CN states of somatic sides across samples.</p></td>
+      </tr><tr><td>
+          <p><code><a href="plot_driver_vaf_heatmap.html">plot_driver_vaf_heatmap()</a></code> <code><a href="plot_driver_vaf_heatmap.html">save_driver_vaf_heatmap()</a></code> </p>
+        </td>
+        <td><p>Plot a heatmap showing VAF of specific mutations across samples.</p></td>
+      </tr><tr><td>
+          <p><code><a href="plot_gene_mut_heatmap.html">plot_gene_mut_heatmap()</a></code> </p>
+        </td>
+        <td><p>Create a plot showing if a gene is mutated in a given sample</p></td>
+      </tr><tr><td>
+          <p><code><a href="plot_inter_mutation_distance.html">plot_inter_mutation_distance()</a></code> </p>
+        </td>
+        <td><p>Function to plot intermutation distances</p></td>
+      </tr><tr><td>
+          <p><code><a href="plot_mutation_heatmap.html">plot_mutation_heatmap()</a></code> </p>
+        </td>
+        <td><p>Function to plot mutation data as a heatmap</p></td>
+      </tr><tr><td>
+          <p><code><a href="plot_mutation_histogram.html">plot_mutation_histogram()</a></code> </p>
+        </td>
+        <td><p>Function to plot mutation data as a histogram</p></td>
+      </tr><tr><td>
+          <p><code><a href="plot_pga_stats.html">plot_pga_stats()</a></code> </p>
+        </td>
+        <td><p>Plot PGA stats</p></td>
+      </tr><tr><td>
+          <p><code><a href="plot_vaf_distribution.html">plot_vaf_distribution()</a></code> </p>
+        </td>
+        <td><p>Plot a histogram of mutations contained in a VCF across CN states.</p></td>
+      </tr><tr><td>
           <p><code><a href="pretty_violin.html">pretty_violin()</a></code> </p>
         </td>
-        <td><p>Title</p></td>
+        <td><p>GGplot layer to plot a violing plot</p></td>
       </tr><tr><td>
           <p><code><a href="split_multiallelic.html">split_multiallelic()</a></code> </p>
         </td>
         <td><p>Function to split multiallelic sites into multiple variants</p></td>
+      </tr><tr><td>
+          <p><code><a href="vcf_to_data_frame.html">vcf_to_data_frame()</a></code> </p>
+        </td>
+        <td><p>Convert a VCF to a data.frame containing key statistics</p></td>
       </tr><tr><td>
           <p><code><a href="window_list_from_genome.html">window_list_from_genome()</a></code> </p>
         </td>
@@ -154,7 +214,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
 </div>
 
       </footer></div>

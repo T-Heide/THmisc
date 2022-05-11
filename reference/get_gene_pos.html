@@ -55,19 +55,30 @@
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>x</dt>
-<dd></dd>
+<dd><p>A vector of gene symbols.</p></dd>
 <dt>txdb</dt>
-<dd></dd>
+<dd><p>Optional TxDb annotation object to use (default: TxDb.Hsapiens.UCSC.hg38.knownGene::TxDb.Hsapiens.UCSC.hg38.knownGene).</p></dd>
 <dt>egdb</dt>
-<dd></dd>
+<dd><p>Optional Bioconductor annotation package to use to lookup gene ids (default: egdb=org.Hs.eg.db::org.Hs.eg.db).</p></dd>
 <dt>return_intervals</dt>
-<dd></dd>
+<dd><p>Argument defining if all gene intervals should be returned (default: FALSE, i.e., a data.frame of gene center).</p></dd>
 </dl></div>
     <div id="value">
     <h2>Value</h2>
     
     </div>
 
+    <div id="ref-examples">
+    <h2>Examples</h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="fu">get_gene_pos</span><span class="op">(</span><span class="st">"KRAS"</span><span class="op">)</span> <span class="co"># data.frame that contains the position of the KRAS gene (around position 25220000 on chr12).</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ENTREZID SYMBOL chr      pos</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1     3845   KRAS  12 25225993</span>
+<span class="r-in"><span class="fu">get_gene_pos</span><span class="op">(</span><span class="st">"KRAS"</span>, <span class="fu">TxDb.Hsapiens.UCSC.hg19.knownGene</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/TxDb.Hsapiens.UCSC.hg19.knownGene/man/package.html" class="external-link">TxDb.Hsapiens.UCSC.hg19.knownGene</a></span><span class="op">)</span> <span class="co"># data.frame that contains the position of the KRAS gene in the hg19 reference genome (around position 25380000 on chr12).</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ENTREZID SYMBOL chr      pos</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1     3845   KRAS  12 25377674</span>
+</code></pre></div>
+    </div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top"><h2 data-toc-skip>Contents</h2>
@@ -80,7 +91,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
 </div>
 
       </footer></div>

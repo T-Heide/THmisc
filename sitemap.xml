@@ -13,6 +13,9 @@
     <loc>/index.html</loc>
   </url>
   <url>
+    <loc>/reference/add_cluster_infos.html</loc>
+  </url>
+  <url>
     <loc>/reference/annotation_from_barcode.html</loc>
   </url>
   <url>
@@ -23,6 +26,15 @@
   </url>
   <url>
     <loc>/reference/baseRevComplement.html</loc>
+  </url>
+  <url>
+    <loc>/reference/calc_avg_cn_per_bin.html</loc>
+  </url>
+  <url>
+    <loc>/reference/calc_cn_summary_stats.html</loc>
+  </url>
+  <url>
+    <loc>/reference/calc_pga_stats.html</loc>
   </url>
   <url>
     <loc>/reference/drop_multiallelic.html</loc>
@@ -97,6 +109,36 @@
     <loc>/reference/long_to_short_peptide_names.html</loc>
   </url>
   <url>
+    <loc>/reference/plot_cn_altered_per_patient.html</loc>
+  </url>
+  <url>
+    <loc>/reference/plot_cn_freq.html</loc>
+  </url>
+  <url>
+    <loc>/reference/plot_cn_states_across_samples.html</loc>
+  </url>
+  <url>
+    <loc>/reference/plot_driver_vaf_heatmap.html</loc>
+  </url>
+  <url>
+    <loc>/reference/plot_gene_mut_heatmap.html</loc>
+  </url>
+  <url>
+    <loc>/reference/plot_inter_mutation_distance.html</loc>
+  </url>
+  <url>
+    <loc>/reference/plot_mutation_heatmap.html</loc>
+  </url>
+  <url>
+    <loc>/reference/plot_mutation_histogram.html</loc>
+  </url>
+  <url>
+    <loc>/reference/plot_pga_stats.html</loc>
+  </url>
+  <url>
+    <loc>/reference/plot_vaf_distribution.html</loc>
+  </url>
+  <url>
     <loc>/reference/pretty_violin.html</loc>
   </url>
   <url>
@@ -107,6 +149,9 @@
   </url>
   <url>
     <loc>/reference/split_multiallelic.html</loc>
+  </url>
+  <url>
+    <loc>/reference/vcf_to_data_frame.html</loc>
   </url>
   <url>
     <loc>/reference/window_list_from_genome.html</loc>

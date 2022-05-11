@@ -72,6 +72,37 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> EPICC_C516_Z1_B1_D1                  NA EPICC_C516_Z1_B1      normal</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                     analyte_name sample_type_name   tumour_id msi_status</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> EPICC_C516_Z1_B1_D1          WGS            blood C516.normal       &lt;NA&gt;</span>
+<span class="r-in"><span class="fu">annotation_from_barcode</span><span class="op">(</span><span class="st">"TCGA-02-0001-01C-01D"</span><span class="op">)</span> <span class="co"># a TCGA sample barcode</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                   Barcode Project.ID TSS.Code</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> TCGA-02-0001-01C-01D TCGA-02-0001-01C-01D       TCGA       02</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                      Study.Abbreviation              Study.Name Patient.ID</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> TCGA-02-0001-01C-01D                GBM Glioblastoma multiforme       0001</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                      Type.ID Type.Short.Letter.Code Type.Definition Vial</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> TCGA-02-0001-01C-01D      01                   &lt;NA&gt;             DNA    C</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                      Portion Analyte.ID Analyte.Name Plate.ID Center.ID</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> TCGA-02-0001-01C-01D      01          D          DNA     &lt;NA&gt;      &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                      Center.Name Center.Type Center.Display.Name Source.ID</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> TCGA-02-0001-01C-01D        &lt;NA&gt;        &lt;NA&gt;                &lt;NA&gt;       IGC</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                    Source.Site</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> TCGA-02-0001-01C-01D MD Anderson Cancer Center</span>
+<span class="r-in"><span class="fu">annotation_from_barcode</span><span class="op">(</span><span class="st">"Text TCGA-02-0001-01C-01D text"</span>, extract<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span> <span class="co"># a TCGA sample barcode</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Warning: Extracted 1 barcodes from supplied strings.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                       Barcode Project.ID</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Text TCGA-02-0001-01C-01D text Text TCGA-02-0001-01C-01D text       TCGA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                TSS.Code Study.Abbreviation</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Text TCGA-02-0001-01C-01D text       02                GBM</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                             Study.Name Patient.ID Type.ID</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Text TCGA-02-0001-01C-01D text Glioblastoma multiforme       0001      01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                Type.Short.Letter.Code Type.Definition Vial</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Text TCGA-02-0001-01C-01D text                   &lt;NA&gt;             DNA    C</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                Portion Analyte.ID Analyte.Name Plate.ID</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Text TCGA-02-0001-01C-01D text      01          D          DNA     &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                Center.ID Center.Name Center.Type</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Text TCGA-02-0001-01C-01D text      &lt;NA&gt;        &lt;NA&gt;        &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                Center.Display.Name Source.ID</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Text TCGA-02-0001-01C-01D text                &lt;NA&gt;       IGC</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                              Source.Site</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Text TCGA-02-0001-01C-01D text MD Anderson Cancer Center</span>
 </code></pre></div>
     </div>
   </div>
@@ -86,7 +117,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
 </div>
 
       </footer></div>
