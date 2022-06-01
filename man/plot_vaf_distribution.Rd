@@ -4,7 +4,13 @@
 \alias{plot_vaf_distribution}
 \title{Plot a histogram of mutations contained in a VCF across CN states.}
 \usage{
-plot_vaf_distribution(d, what = "VAF", purity = NULL, ploidy = NULL)
+plot_vaf_distribution(
+  d,
+  what = "VAF",
+  purity = NULL,
+  ploidy = NULL,
+  max_cn = 4
+)
 }
 \arguments{
 \item{d}{Object of class 'CollapsedVCF'}
@@ -14,6 +20,8 @@ plot_vaf_distribution(d, what = "VAF", purity = NULL, ploidy = NULL)
 \item{purity}{A named numeric vector of sample purities. Used to calculate expected cluster positions and to create labels. (Default: NULL)}
 
 \item{ploidy}{A named numeric vector of sample ploidies. Used to calculate expected cluster positions and to create labels. (Default: NULL)}
+
+\item{max_cn}{A single integer >1 defining up to which copy-number value states should be plotted (Default: 4).}
 }
 \value{
 A ggplot object containing mutation histograms

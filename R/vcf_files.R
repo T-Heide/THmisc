@@ -1147,12 +1147,13 @@ replace_aa_codes = function(v) {
 #' @param what String containing 'VAF' or 'CCF' that defines what to plot. (Default: 'VAF')
 #' @param purity A named numeric vector of sample purities. Used to calculate expected cluster positions and to create labels. (Default: NULL)
 #' @param ploidy  A named numeric vector of sample ploidies. Used to calculate expected cluster positions and to create labels. (Default: NULL)
+#' @param max_cn  A single integer >1 defining up to which copy-number value states should be plotted (Default: 4).
 #'
 #' @return A ggplot object containing mutation histograms
 #' @export
 #' @import ggplot2
 #'
-plot_vaf_distribution = function(d, what="VAF", purity=NULL, ploidy=NULL) {
+plot_vaf_distribution = function(d, what="VAF", purity=NULL, ploidy=NULL, max_cn=4) {
 
   checkmate::assertDataFrame(d)
   checkmate::assertTRUE(all(c("mutation","sample","CN","VAF","CCF","AB","type") %in% colnames(d)))
@@ -1161,6 +1162,7 @@ plot_vaf_distribution = function(d, what="VAF", purity=NULL, ploidy=NULL) {
 
   checkmate::assertNumeric(purity, null.ok = TRUE, names = "unique")
   checkmate::assertNumeric(ploidy, null.ok = TRUE, names = "unique")
+  checkmate::assertIntegerish(max_cn, len=1, lower=1)
 
   # plot data for each sample
   d$value = d[,what]
@@ -1199,7 +1201,7 @@ plot_vaf_distribution = function(d, what="VAF", purity=NULL, ploidy=NULL) {
       dplyr::filter(sample == csample) %>%
       dplyr::filter(value > 0) %>%
       dplyr::mutate(AB = factor(AB)) %>%
-      mutate(AB=factor(AB, levels(AB)[nchar(levels(AB)) <= 4], ordered=TRUE)) %>%
+      mutate(AB=factor(AB, levels(AB)[nchar(levels(AB)) <= max_cn], ordered=TRUE)) %>%
       dplyr::filter(!is.na(AB))
 
 
