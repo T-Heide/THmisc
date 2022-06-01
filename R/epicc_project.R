@@ -122,7 +122,7 @@ annotation_from_barcode_epicc =
         dplyr::case_when( # some exceptions from the rule ...
           region %in% c("F") & patient == "C542" ~ "cancer",
           region %in% c("C", "D") & patient == "C516" ~ "adenoma",
-          region %in% c("E", "Z", "W") ~ "normal",
+          region %in% c("E", "Z", "W", "S") ~ "normal",
           region %in% c("A", "B", "C", "D") ~ "cancer",
           region %in% c("F", "G", "H", "I") ~ "adenoma"
         ) %>% factor(tt_order, ordered=TRUE)
@@ -142,6 +142,7 @@ annotation_from_barcode_epicc =
       with(annotation, {
         dplyr::case_when(
           region == "Z" ~ "blood",
+          region == "S" ~ "blood",
           TRUE ~ type_id_names[as.character(sample_type)]
         ) %>% factor(c(type_id_names), ordered=TRUE)
       })
