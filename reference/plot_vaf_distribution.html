@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">THmisc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.0</span>
       </span>
     </div>
 
@@ -44,7 +44,13 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">plot_vaf_distribution</span><span class="op">(</span><span class="va">d</span>, what <span class="op">=</span> <span class="st">"VAF"</span>, purity <span class="op">=</span> <span class="cn">NULL</span>, ploidy <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">plot_vaf_distribution</span><span class="op">(</span>
+  <span class="va">d</span>,
+  what <span class="op">=</span> <span class="st">"VAF"</span>,
+  purity <span class="op">=</span> <span class="cn">NULL</span>,
+  ploidy <span class="op">=</span> <span class="cn">NULL</span>,
+  max_cn <span class="op">=</span> <span class="fl">4</span>
+<span class="op">)</span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -57,6 +63,8 @@
 <dd><p>A named numeric vector of sample purities. Used to calculate expected cluster positions and to create labels. (Default: NULL)</p></dd>
 <dt>ploidy</dt>
 <dd><p>A named numeric vector of sample ploidies. Used to calculate expected cluster positions and to create labels. (Default: NULL)</p></dd>
+<dt>max_cn</dt>
+<dd><p>A single integer &gt;1 defining up to which copy-number value states should be plotted (Default: 4).</p></dd>
 </dl></div>
     <div id="value">
     <h2>Value</h2>
