@@ -170,7 +170,7 @@ baseRevComplement =
   }
 
 
-createMutTypes = function(c, a) {
+createMutTypes = function(c_str, a_str) {
 
   mutation_types =
     c(
@@ -192,17 +192,25 @@ createMutTypes = function(c, a) {
       "G[T>G]G", "G[T>G]T", "T[T>G]A", "T[T>G]C", "T[T>G]G", "T[T>G]T"
       )
 
-  c = DNAStringSet(c)
-  a = DNAStringSet(a)
+  c = Biostrings::DNAStringSet(c_str)
+  a = Biostrings::DNAStringSet(a_str)
 
-  width = nchar(c)
+  width = nchar(c_str)
   p_center = (width-1)/2+1
 
   wh = substr(c, p_center, p_center) %in% c("G", "A")
-  c[wh] = reverseComplement(c[wh])
-  a[wh] = reverseComplement(a[wh])
+  c[wh] = Biostrings::reverseComplement(c[wh])
+  a[wh] = Biostrings::reverseComplement(a[wh])
 
-  mt = paste0(substr(c,1,p_center-1),"[",substr(c,p_center,p_center),">",as.character(a),"]",substr(c,p_center+1,width))
+  mt = paste0(
+    substr(c, 1, p_center - 1),
+    "[",
+    substr(c, p_center, p_center),
+    ">",
+    as.character(a),
+    "]",
+    substr(c, p_center + 1, width)
+  )
 
   if (all(width == 3)) {
     mt = factor(mt, mutation_types, ordered=TRUE)
@@ -212,6 +220,21 @@ createMutTypes = function(c, a) {
 }
 
 
+#' Create detailed mutation annotation.
+#'
+#' @param x A CollapsedVCF object or a mutation string.
+#' @param geno A BSgenome object containing the reference genome.
+#' @param n_bases_context Number of base-pairs to use as context.
+
+#' @return A data.frame containing detailed mutation annotation (chromosome, start, end and ref. & alt. alleles, mutation type, transition + context that can be used for signature analysis and transition type).
+#' @export
+#'
+#' @examples if (require("BSgenome.Hsapiens.UCSC.hg38")) {
+#'   THmisc:::annotate_mutation_types(
+#'     c("chr1:11925339_A/G", "chr1:11925592_C/T"),
+#'     BSgenome.Hsapiens.UCSC.hg38::BSgenome.Hsapiens.UCSC.hg38
+#'   )
+#' }
 annotate_mutation_types = function(x, geno, n_bases_context=1) {
 
   # basic annotation
@@ -221,7 +244,7 @@ annotate_mutation_types = function(x, geno, n_bases_context=1) {
   #
   wh_snv = muts$mutation_type == "SNV"
   muts_gr = as(muts[wh_snv,c("chr","start","end")], "GRanges")
-  cont = getSeq(geno, muts_gr + n_bases_context)
+  cont = as.character(BSgenome::getSeq(geno, muts_gr + n_bases_context))
 
   # check reported reference allele
   width = nchar(cont)
