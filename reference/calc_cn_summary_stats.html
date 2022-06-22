@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">THmisc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.0</span>
       </span>
     </div>
 
@@ -51,14 +51,21 @@
     <h2>Arguments</h2>
     <dl><dt>d</dt>
 <dd><p>A data.frame containing CN data. Must contain a 'sample' or 'sample_barcode', a 'patient' , 'CN' or 'value' (the copy-number value), and 'name' (the CN window name).</p></dd>
+
+
 <dt>window_infos</dt>
 <dd><p>A optional interval annotation data frame of windows. Must contain "chr","start","end","name","window" columns.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>arguements passed to `findAmplificationBins`</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>A list of  data.frame containing summary statics about how often a genomic window ('name') is lost, gained or amplified in each 'patient'.</p>
+    
+
+<p>A list of  data.frame containing summary statics about how often a genomic window ('name') is lost, gained or amplified in each 'patient'.</p>
     </div>
 
   </div>
@@ -73,7 +80,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>

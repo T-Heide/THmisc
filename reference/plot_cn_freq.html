@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">THmisc</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.0</span>
       </span>
     </div>
 
@@ -58,20 +58,33 @@
     <h2>Arguments</h2>
     <dl><dt>data</dt>
 <dd><p>A list of summary stats returned by the 'calc_cn_summary_stats' function.</p></dd>
+
+
 <dt>cutoff_clonal</dt>
 <dd><p>The fraction of samples that have to show a copy-number alteration in a case to consider it to be 'clonal' (i.e., present in all samples).</p></dd>
+
+
 <dt>cutoff_subclonal</dt>
 <dd><p>The fraction of samples that have to show a copy-number alteration in a case to consider it to be 'subclonal' (i.e., present in some samples).</p></dd>
+
+
 <dt>bands</dt>
 <dd><p>Optional information on chromosome banding. The format should be like those in the 'D3GB' package (e.g., D3GB::GRCh38.bands'), that is a data.frame containing 'chr', 'start', 'end' 'name' and 'score' columns. Rows with a 'score' of 'acen' will be used to calculate actual centromer positions.</p></dd>
+
+
 <dt>gene_labels</dt>
 <dd><p>Optional gene names to label. Positions will be retrieved with the 'get_gene_pos' position.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Optional arguments that will be passed to the 'get_gene_pos' function (see '?'get_gene_pos' for details).</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>A plot showing the frequency of clonal and subclonal copy-number alterations across cases.</p>
+    
+
+<p>A plot showing the frequency of clonal and subclonal copy-number alterations across cases.</p>
     </div>
 
   </div>
@@ -86,7 +99,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>
