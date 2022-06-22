@@ -302,7 +302,7 @@ split_multiallelic = function(d) {
 
       # keep the select allele from the csq elements
       VariantAnnotation::info(d_cur)$CSQ =
-        mapply("[", csqs, lapply(al_nums, "==", i), SIMPLIFY=0) %>%
+        Map(function(x, i) as.character(x[i]), csqs, lapply(al_nums, "==", i)) %>% 
         IRanges::CharacterList()
 
     }
