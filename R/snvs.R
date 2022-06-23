@@ -286,3 +286,60 @@ long_to_short_peptide_names =  function(annot) {
   return(annot)
 }
 
+
+#' Plot signature spectrum of mutations
+#'
+#' @param x Output of `annotate_mutation_types` or any input this function accepts.
+#' @param ... Additional arguments that would be passed to `annotate_mutation_types`.
+#'
+#' @return A plot of the signature spectrum.
+#' @export
+#'
+plot_signature_data = function(x) {
+
+  if (!is.data.frame(x)) {
+    x = annotate_mutation_types(x, ...)
+  }
+
+  if (!all(c("mutation_type", "mutation_context", "substitution") %in% colnames(x))) {
+    x = annotate_mutation_types(x, ...)
+  }
+
+  cols =
+    c( # COSIMC style colors
+      `C>A` = "#52C4F2",
+      `C>G` = "#231F20",
+      `C>T` = "#E72223",
+      `T>A` = "#CCCAC8",
+      `T>C` = "#97D64C",
+      `T>G` = "#EEC0C3"
+    )
+
+  # insert a pseudo entry for
+  # all contexts without data
+  x$weight = 1
+  muts = levels(x$mutation_context)
+  missing = muts[!muts %in% x$mutation_context]
+
+  dropin = do.call(what=rbind, rep(list(x[1,]), length(missing)))
+  if (!is.null(dropin)) {
+    dropin$weight = 0
+    dropin$mutation_context = missing
+    dropin$substitution = gsub("[]].*", "", gsub(".*[[]", "", dropin$mutation_context))
+    dropin$mutation_type = "SNV"
+  }
+
+  # create plot
+  rbind(x, dropin) %>%
+    dplyr::filter(mutation_type == "SNV") %>%
+    dplyr::mutate(substitution  = factor(substitution, names(cols), ordered=TRUE)) %>%
+    ggplot2::ggplot(ggplot2::aes(x=mutation_context, fill=substitution, weight=weight)) +
+      cowplot::theme_cowplot() +
+      ggplot2::geom_bar() +
+      ggplot2::facet_grid(~substitution, scales = "free") +
+      xlab("") + ylab("N") + guides(fill="none") +
+      theme(axis.text.x=element_text(angle=90, hjust=1, vjust=0.5, size=8)) +
+      scale_fill_manual(values=cols, breaks=names(cols)) +
+      theme(legend.position="bottom")
+
+}
