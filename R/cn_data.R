@@ -86,12 +86,12 @@ get_cnas = function(mutation_data, cna_segments, sample_ids=NULL) {
     if (length(ol) == 0) next()
 
     cna_status[wh_missing,i] =
-      sapply(wh_missing, function(i) {
+      vapply(wh_missing, function(i) {
         wh = queryHits(ol) == i
-        if (sum(wh) == 0) return(NA)
+        if (sum(wh) == 0) return(as.numeric(NA))
         sw = pintersect(mut_gr[wh,], sample_cna_gr[subjectHits(ol[wh])])
         weighted.mean(sample_cna$CNt[[subjectHits(ol[wh])]], width(sw))
-      })
+      }, numeric(1))
   }
 
   return(cna_status)

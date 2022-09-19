@@ -302,7 +302,7 @@ split_multiallelic = function(d) {
 
       # keep the select allele from the csq elements
       VariantAnnotation::info(d_cur)$CSQ =
-        Map(function(x, i) as.character(x[i]), csqs, lapply(al_nums, "==", i)) %>% 
+        Map(function(x, i) as.character(x[i]), csqs, lapply(al_nums, "==", i)) %>%
         IRanges::CharacterList()
 
     }
@@ -710,7 +710,7 @@ add_annot_wrapper = function(data, verbose=TRUE) {
           "%s p.%s%d%s (%s:%i-%i_%s/%s)",
           gene_ids_to_name[annot_c$GENEID],
           annot_c$REFAA,
-          sapply(annot_c$PROTEINLOC, "[[", 1),
+          vapply(annot_c$PROTEINLOC, "[[", character(length(annot_c$PROTEINLOC)), 1),
           annot_c$VARAA,
           GenomicRanges::seqnames(annot_c),
           GenomicRanges::start(annot_c),
@@ -729,7 +729,7 @@ add_annot_wrapper = function(data, verbose=TRUE) {
       if (verbose & requireNamespace("pbapply", quietly = TRUE)) {
         annot_strings = pbapply::pbsapply(rownames(data), .get_annot_string)
       }  else {
-        annot_strings = sapply(rownames(data), .get_annot_string)
+        annot_strings = vapply(rownames(data), .get_annot_string, character(1))
       }
 
 
@@ -808,7 +808,7 @@ vcf_to_data_frame = function(d, relevant_consequences=c("high","moderate"), anno
 
   # parse selected consequences
   rel_csq_in = relevant_consequences
-  relevant_consequences = c()
+  relevant_consequences = character()
 
   for (i in seq_along(rel_csq_in)) {
     if (rel_csq_in[i] %in% names(csq_consequence_mapper)) {
@@ -880,7 +880,7 @@ vcf_to_data_frame = function(d, relevant_consequences=c("high","moderate"), anno
       if (length(x) == 0)
         return("")
 
-      paste(sapply(x, function(b) {
+      paste(vapply(x, function(b) {
         gene = .get_feature(b, "SYMBOL")
 
         conseq = .replace_aa_codes(.get_feature(b, "HGVSp"))
@@ -903,7 +903,7 @@ vcf_to_data_frame = function(d, relevant_consequences=c("high","moderate"), anno
         conseq = gsub("%3", "", conseq)
 
         paste0(gene, " (", conseq, ")")
-      }), collapse="; ")
+      }), character(1), collapse="; ")
     }
 
     .get_most_relevant_csq = function(x) {
@@ -919,13 +919,13 @@ vcf_to_data_frame = function(d, relevant_consequences=c("high","moderate"), anno
         is_canon = .get_feature(x, "Feature") %in% canonical_transcripts$transcript
 
         max_ = function(x) { if (all(is.na(x))) return(NA); max(x, na.rm=TRUE) }
-        most_relevant = sapply(lapply(conseq, match, relevant_consequences), max_)
+        most_relevant = vapply(lapply(conseq, match, relevant_consequences), max_, numeric(1))
         most_relevant[is.infinite(most_relevant)] = NA
         if (all(is.na(most_relevant))) {
           is_relevant = rep(FALSE, length(most_relevant))
         } else {
           is_relevant = most_relevant == max(most_relevant, na.rm=TRUE)
-          is_relevant = sapply(is_relevant, isTRUE)
+          is_relevant = vapply(is_relevant, isTRUE, logical(1))
         }
 
         # identify elements to use for annotation
@@ -963,7 +963,7 @@ vcf_to_data_frame = function(d, relevant_consequences=c("high","moderate"), anno
       # drop irrelevant lines
       csq_sym = lapply(VariantAnnotation::info(d)$CSQ, .get_feature, "SYMBOL")
       csq_sym_spl = csq_sym %>% lapply(strsplit, "[%]")
-      lines_keep = sapply(csq_sym_spl, .keep_el)
+      lines_keep = vapply(csq_sym_spl, .keep_el, logical(1))
       d = d[lines_keep,]
 
       # drop irrelevant annotations
@@ -991,7 +991,7 @@ vcf_to_data_frame = function(d, relevant_consequences=c("high","moderate"), anno
   #---------------------------------------------
 
   if (has_csq & include_annot) {
-    mut_annot = sapply(VariantAnnotation::info(d)$CSQ, .get_most_relevant_csq)
+    mut_annot = vapply(VariantAnnotation::info(d)$CSQ, .get_most_relevant_csq, character(1))
     names(mut_annot) = rownames(d)
   } else if (has_annot) {
     mut_annot = SummarizedExperiment::rowRanges(d)$ANNOTATION
@@ -1048,7 +1048,7 @@ vcf_to_data_frame = function(d, relevant_consequences=c("high","moderate"), anno
       lapply(gsub, pattern=" [(][&.+->?_,: A-Za-z0-9*]+[)]", replacement="") %>%
       lapply(gsub, pattern=" [pc][.].*", replacement="") %>%
       lapply(gsub, pattern=" ", replacement="") %>%
-      sapply(paste0, collapse=";")
+      vapply(paste0, collapse=";", character(1))
   }
 
   data_bound =
@@ -1090,13 +1090,12 @@ get_annotation_from_csq = function(d) {
 
 
   # find relevant annotations:
-  annot_csq_relevant = sapply(annot_csq, function(a) {
+  annot_csq_relevant = vapply(annot_csq, function(a) {
 
-    conseq = strsplit(sapply(a, get_feature, "Consequence"), "&")
-
-    is_trans = sapply(a, get_feature, "Feature_type") == "Transcript"
-    is_canon = sapply(a, get_feature, "Feature") %in% canonical_list$transcript
-    is_relevant = sapply(lapply(conseq, "%in%", relevant_consequences), any)
+    conseq = strsplit(vapply(a, get_feature, character(length(a)), "Consequence"), "&")
+    is_trans = vapply(a, get_feature, character(length(a)),"Feature_type") == "Transcript"
+    is_canon = vapply(a, get_feature, character(length(a)),"Feature") %in% canonical_list$transcript
+    is_relevant = vapply(lapply(conseq, "%in%", relevant_consequences), any, logical(length(a)))
 
     wh_annotate = is_trans & is_canon & is_relevant
     trim_canocial = TRUE
@@ -1128,7 +1127,7 @@ get_annotation_from_csq = function(d) {
     } else {
       return(annots_genes)
     }
-  })
+  }, character(1))
 
 
 }
