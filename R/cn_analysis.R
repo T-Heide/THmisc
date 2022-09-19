@@ -473,7 +473,10 @@ get_gene_pos = function(x, txdb=TxDb.Hsapiens.UCSC.hg38.knownGene::TxDb.Hsapiens
       data.frame(
         ENTREZID = names(pos_data),
         chr = gsub("chr", "", sapply(pos_data, function(x) unique(x$CDSCHROM))),
-        pos = sapply(pos_data, function(x) mean((x$CDSSTART + x$CDSEND)/2))
+        pos = sapply(pos_data, function(x) mean((x$CDSSTART + x$CDSEND)/2)),
+        start = sapply(pos_data, function(x) min(x$CDSSTART)),
+        end = sapply(pos_data, function(x) max(x$CDSEND)),
+
         row.names = NULL
       )
 
