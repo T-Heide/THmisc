@@ -1,3 +1,32 @@
+generate_segment_input = function(d) {
+
+  if (inherits(d, "CollapsedVCF")) {
+    sample_ids = colnames(d)
+    chrs = as.character(GenomeInfoDb::seqnames(d))
+    pos = BiocGenerics::start(d)
+    mut_gr = GenomicRanges::GRanges(chrs, IRanges::IRanges(pos, pos))
+    mut_ids = rownames(d)
+  } else if (inherits(d, "GRanges")) {
+    mut_gr = d
+    mut_ids = as.character(mut_gr)
+  } else if (is.character(d)) {
+    mut_gr = as(gsub("_.*", "", d), "GRanges")
+    mut_ids = d
+  } else if (is.data.frame(d)) {
+    if (all(c("chr", "start", "end") %in% colnames(d))){
+      mut_gr = with(d, GenomicRanges::GRanges(chr, IRanges::IRanges(start, end)))
+      mut_ids = as.character(mut_gr)
+    } else {
+      stop()
+    }
+  } else {
+    stop()
+  }
+
+
+  return(list(mut_gr, mut_ids))
+}
+
 #' Get CN annotations from a list of cn data.
 #'
 #' @param mutation_data A CollapsedVCF object, GRanges object or a mutation id.
@@ -9,21 +38,15 @@
 #'
 get_cnas = function(mutation_data, cna_segments, sample_ids=NULL) {
 
-  if (inherits(mutation_data, "CollapsedVCF")) {
-    sample_ids = colnames(mutation_data)
-    chrs = as.character(GenomeInfoDb::seqnames(mutation_data))
-    pos = BiocGenerics::start(mutation_data)
-    mut_gr = GenomicRanges::GRanges(chrs, IRanges::IRanges(pos, pos))
-    mut_ids = rownames(mutation_data)
-  } else if (inherits(mutation_data, "GRanges")) {
-    mut_gr = mutation_data
-    mut_ids = as.character(mut_gr)
-  } else if (is.character(mutation_data)) {
-    mut_gr = as(gsub("_.*", "", mutation_data), "GRanges")
-    mut_ids = mutation_data
-  } else {
-    stop("Invalid 'mutation_data' input.\n")
-  }
+  mdata =
+    tryCatch({
+      generate_segment_input(mutation_data)
+      }, error = function(e) stop("Invalid 'mutation_data' input.\n")
+    )
+
+  mut_gr = mdata[[1]]
+  mut_ids = mdata[[2]]
+
 
   if (is.null(sample_ids)) {
     stop("Missing 'sample_ids' please pass these as input.\n")
@@ -85,31 +108,18 @@ get_cnas = function(mutation_data, cna_segments, sample_ids=NULL) {
 #'
 get_ab_alleles = function(mutation_data, cna_segments, sample_ids=NULL) {
 
-  if ("CollapsedVCF" %in% class(mutation_data)) {
+  if ("CollapsedVCF" %in% class(mutation_data) & is.null(sample_ids)) {
     sample_ids = colnames(mutation_data)
-    chrs = as.character(GenomicRanges::seqnames(mutation_data))
-    pos = GenomicRanges::start(mutation_data)
   }
+
+  mutation_data = generate_segment_input(mutation_data)[[1]]
+  chrs = as.character(GenomicRanges::seqnames(mutation_data))
+  pos = GenomicRanges::start(mutation_data)
 
   if (!is.null(sample_ids)) {
     chrs = as.character(GenomicRanges::seqnames(mutation_data))
     pos = GenomicRanges::start(mutation_data)
   }
-
-  #
-  #
-  # else if ("data.frame" %in% class(mutation_data)) {
-  #   stop("Invalid input.\n")
-  #
-  #   if (!all(c("chr","pos") %in% colnames(mutation_data))) {
-  #     stop("Invalid input.\n")
-  #   }
-  #   sample_ids = "AB"
-  #   chrs = mutation_data
-  #   pos = ""
-  # } else {
-  #   stop("Invalid input.\n")
-  # }
 
 
   # check for missing segment data:
