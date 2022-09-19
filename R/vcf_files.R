@@ -358,7 +358,7 @@ split_multiallelic = function(d) {
     return(d_ret)
 
   # elements to drop if not all biallelic
-  for (el in c("PL")) {
+  for (el in "PL") {
     if (el %in% names(VariantAnnotation::geno(d))) {
       VariantAnnotation::geno(d_ret)[[el]] = NULL
       VariantAnnotation::geno(d)[[el]] = NULL
@@ -581,7 +581,7 @@ load_vcf_file = function(f, ..., verbose=TRUE, annot=TRUE) {
   stopifnot(!is.na(vcf_type))
 
   if (verbose) {
-    if (vcf_type %in% c("unknown")) {
+    if (vcf_type %in% "unknown") {
       type = crayon::red(sQuote(Hmisc::capitalize(vcf_type)))
     } else {
       type = crayon::green(sQuote(Hmisc::capitalize(vcf_type)))

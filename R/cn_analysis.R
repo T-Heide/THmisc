@@ -38,7 +38,7 @@ window_list_from_genome = function(geno, chr_filter=NULL, width=1e6) {
 calc_avg_cn_per_bin = function(cn_data, windows) {
 
   .try_fix_input = function(x) {
-    alt_enc = c(start="start.pos", end="end.pos", chr="chromosome",CN="CNt")
+    alt_enc = c(start="start.pos", end="end.pos", chr="chromosome", CN="CNt")
     for (i in seq_along(alt_enc)) {
       cn = colnames(x)
       if (!names(alt_enc)[i] %in% cn & alt_enc[i] %in% cn) {
@@ -53,7 +53,7 @@ calc_avg_cn_per_bin = function(cn_data, windows) {
   }
 
   .calc_avg_cn_in_bin = function(x, y) {
-    dg = as(x[,c("chr","start","end","CN")], "GRanges")
+    dg = as(x[, c("chr","start","end","CN")], "GRanges")
     cb = dplyr::mutate(y, value=NA)
     pairs = findOverlaps(as(cb, "GRanges"), dg , minoverlap=1)
     average_value = tapply(dg$CN[to(pairs)], from(pairs), mean, na.rm=TRUE)
@@ -105,7 +105,7 @@ findAmplificationBins = function(dpw, m_cn, amp_factor = 2, max_amp_size = 10*10
       wh_not = which(length > max_amp_size)
       idx = lapply(wh_not, function(i) seq(df_rle$idx_e[i], df_rle$idx_s[i]))
       d$amped[unlist(idx)] = FALSE
-      return(d[,c("amped","patient","name")])
+      return(d[, c("amped","patient","name")])
     }) %>% do.call(what=rbind)
 
   amp_frac_mat = with(amplified_bins, tapply(amped, list(name, patient), mean))
@@ -167,7 +167,7 @@ calc_cn_summary_stats = function(d, window_infos=NULL, ...) {
   frac_losses = with(d, t(tapply(loss, list(patient, name), mean)))
 
   amped = data.frame(findAmplificationBins(d, crit_vals, ...))
-  amped = amped[rownames(frac_gains),colnames(frac_gains)]
+  amped = amped[rownames(frac_gains), colnames(frac_gains)]
   dimnames(amped) = list(rownames(frac_gains), colnames(frac_gains))
 
 
@@ -191,7 +191,7 @@ calc_cn_summary_stats = function(d, window_infos=NULL, ...) {
   if (!is.null(window_infos)) {
     wh = colnames(window_infos) %in% c("chr","start","end","name","window")
     windows = unique(window_infos[,wh])
-    stopifnot(!duplicated(windows[,colnames(windows) %in% c("chr","start","end")]))
+    stopifnot(!duplicated(windows[, colnames(windows) %in% c("chr","start","end")]))
   } else {
     names = unique(d$name)
     windows = data.frame(name=names, 'chr'='unknown', start=seq_along(names), end=seq_along(names)+1)
@@ -232,7 +232,7 @@ plot_cn_altered_per_patient = function(data) {
     ylab("Fraction") +
     ylim(c(-1,1)) +
     scale_y_continuous(breaks=c(-1,0,1)) +
-    scale_x_continuous(breaks=c()) +
+    scale_x_continuous(breaks=vector()) +
     theme(strip.text.x=element_text(angle=90)) +
     theme(strip.text.y=element_text(angle=0))
 
@@ -328,7 +328,7 @@ plot_cn_freq = function(data, cutoff_clonal=1, cutoff_subclonal=0, bands=NULL, g
     theme(strip.background.x=element_blank()) +
     scale_alpha_manual(values=alpha_vals) +
     scale_fill_manual(values=col_vals) +
-    scale_x_continuous(breaks=c(0), labels="") +
+    scale_x_continuous(breaks=0, labels="") +
     scale_y_continuous(breaks=y_breaks, labels=abs(y_breaks), limits=y_range) +
     xlab("") + ylab("Number of cases") + labs(fill="") +
     guides(alpha="none") +
@@ -382,8 +382,8 @@ plot_cn_freq = function(data, cutoff_clonal=1, cutoff_subclonal=0, bands=NULL, g
     gene_labels$y_pos = NA
     for (i in seq_along(gene_labels$y_pos)) {
       win = gene_labels$win_name[i]
-      gain = data_per_window_summary[win,c("subclonal_gains")]
-      loss = data_per_window_summary[win,c("subclonal_losses")]
+      gain = data_per_window_summary[win, "subclonal_gains"]
+      loss = data_per_window_summary[win, "subclonal_losses"]
       opts = c(-loss, gain)
       gene_labels$y_pos[i] = opts[nnet::which.is.max(abs(opts))]
     }
@@ -471,9 +471,9 @@ get_gene_pos = function(x, txdb=TxDb.Hsapiens.UCSC.hg38.knownGene::TxDb.Hsapiens
 
     pos_data_avg =
       data.frame(
-        ENTREZID=names(pos_data),
-        chr=gsub("chr", "", sapply(pos_data, function(x) unique(x$CDSCHROM))),
-        pos=sapply(pos_data, function(x) mean((x$CDSSTART + x$CDSEND)/2)),
+        ENTREZID = names(pos_data),
+        chr = gsub("chr", "", sapply(pos_data, function(x) unique(x$CDSCHROM))),
+        pos = sapply(pos_data, function(x) mean((x$CDSSTART + x$CDSEND)/2))
         row.names = NULL
       )
 
