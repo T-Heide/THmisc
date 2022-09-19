@@ -23,7 +23,7 @@ annotation_from_barcode_epicc =
         "(?P<patient>C[0-9]+)_",
         "(?P<region>[A-Z])(?P<region_number>[0-9]+)_",
         "(?P<sample_type>[BGL])(?P<sample_number>[0-9]+)_",
-        "(?P<analyte>[DRCBL])(?P<analyte_number>[0-9]+))",
+        "(?P<analyte>[DRSCBL])(?P<analyte_number>[0-9]+))",
         "(?:_I(?P<iteration>[0-9]+))?)",
         "(?(iteration)_(?P<lane_id>L[0-9A-Za-z]+)|)?)",
         "(?(lane_id)_R(?P<read_number>[012]))?)"
@@ -43,6 +43,7 @@ annotation_from_barcode_epicc =
       "L" = "LP-WGS",
       "C" = "ATAC-seq",
       "R" = "RNA-seq",
+      "S" = "RNA-seq",
       "B" = "Bisulfit WGS"
     )
 
@@ -133,7 +134,7 @@ annotation_from_barcode_epicc =
     annotation$analyte_name =
       with(annotation, {
         analyte_id_names[as.character(analyte)] %>%
-          factor(analyte_id_names, ordered=TRUE)
+          factor(unique(analyte_id_names), ordered=TRUE)
       })
 
 
